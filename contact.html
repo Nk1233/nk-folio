@@ -381,50 +381,198 @@
         
         /* Mobile Responsive */
         @media (max-width: 768px) {
-            canvas {
+            * {
+                cursor: auto !important;
+            }
+
+            html, body {
+                height: 100%;
+                overflow: hidden;
+            }
+
+            body {
+                overflow-y: auto;
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+                background: #fafafa;
+            }
+
+            canvas,
+            .custom-cursor,
+            .ground-shadow,
+            .hero-shadow,
+            .depth-nav,
+            .session-timer,
+            .system-status,
+            .fps-counter {
                 display: none !important;
             }
-            
-            .depth-nav {
-                left: 5%;
+
+            .mobile-container {
+                display: block;
+                min-height: 100%;
+                padding: 20px;
+                padding-bottom: 100px;
+                max-width: 480px;
+                margin: 0 auto;
+            }
+
+            .mobile-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 24px;
+                padding: 8px 0;
+            }
+
+            .mobile-back {
+                font-family: 'Inter', sans-serif;
+                font-size: 14px;
+                text-decoration: none;
+                color: #000;
+                opacity: 0.5;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .mobile-datetime {
+                text-align: right;
+            }
+
+            .mobile-time {
+                font-family: 'Inter', sans-serif;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            .mobile-content {
+                max-width: 100%;
+            }
+
+            .mobile-title {
+                font-family: 'Inter', sans-serif;
+                font-size: clamp(28px, 8vw, 44px);
+                font-weight: 800;
+                letter-spacing: -0.02em;
+                margin-bottom: 12px;
+                line-height: 1.1;
+            }
+
+            .mobile-subtitle {
+                font-family: 'Inter', sans-serif;
+                font-size: 15px;
+                opacity: 0.6;
+                margin-bottom: 32px;
+                line-height: 1.5;
+            }
+
+            .mobile-email {
+                font-family: 'Inter', sans-serif;
+                font-size: 16px;
+                font-weight: 500;
+                margin-bottom: 24px;
+                padding: 18px 20px;
+                background: #fff;
+                border-radius: 12px;
+                word-break: break-all;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+                text-align: center;
+            }
+
+            .mobile-social {
+                display: flex;
                 gap: 12px;
+                margin-bottom: 32px;
+                flex-wrap: wrap;
             }
-            
-            .depth-nav .nav-item {
+
+            .mobile-social-link {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 14px 22px;
+                background: #000;
+                color: #fff;
+                text-decoration: none;
+                border-radius: 100px;
+                font-family: 'Inter', sans-serif;
+                font-size: 14px;
+                font-weight: 600;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+                transition: all 0.2s;
+            }
+
+            .mobile-social-link:active {
+                transform: scale(0.96);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            }
+
+            .mobile-social-link svg {
+                width: 18px;
+                height: 18px;
+                fill: currentColor;
+            }
+
+            .mobile-status {
+                font-family: 'Courier New', monospace;
                 font-size: 12px;
-                letter-spacing: 0.1em;
+                opacity: 0.5;
+                margin-top: 8px;
+                padding: 16px;
+                background: #fff;
+                border-radius: 12px;
+                text-align: center;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             }
-            
-            .hero-text {
-                font-size: clamp(32px, 12vw, 80px);
+
+            .mobile-bottom-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                display: flex;
+                justify-content: space-around;
+                padding: 16px 20px 24px;
+                background: #fff;
+                border-top: 1px solid rgba(0,0,0,0.06);
             }
-            
+
+            .mobile-bottom-nav a {
+                font-family: 'Inter', sans-serif;
+                font-size: 11px;
+                text-decoration: none;
+                color: #000;
+                opacity: 0.4;
+                text-transform: uppercase;
+                letter-spacing: 0.12em;
+                font-weight: 500;
+                padding: 8px 12px;
+            }
+
+            .mobile-bottom-nav a.active {
+                opacity: 1;
+                background: #f5f5f5;
+                border-radius: 20px;
+            }
+
+            .hero-container,
+            .resume-link,
+            .license-text {
+                display: none;
+            }
+
             .ui-element {
-                font-size: 9px;
+                display: none;
             }
-            
-            .live-time {
-                top: 12px;
-                right: 12px;
-            }
-            
-            .date-display {
-                top: 26px;
-                right: 12px;
-            }
-            
-            .fps-counter {
-                top: 40px;
-                right: 12px;
-            }
-            
-            .time-greeting {
-                top: 12px;
-                left: 5%;
-            }
-            
-            .session-timer,
-            .system-status {
+        }
+
+        @media (min-width: 769px) {
+            .mobile-container,
+            .mobile-header,
+            .mobile-content,
+            .mobile-bottom-nav {
                 display: none;
             }
         }
@@ -515,9 +663,46 @@
     <a href="Resume/Nikhil%20Mishra%20%E2%80%93%20Data%20Analyst%20Resume.pdf" class="resume-link hover-target" target="_blank" rel="noopener">Resume</a>
     
     <div class="license-text">Made By Nikhil With ❤️ and lots of 🍵</div>
-    
+
+    <!-- Mobile Layout -->
+    <div class="mobile-container">
+        <header class="mobile-header">
+            <a href="index.html" class="mobile-back">← Back</a>
+            <div class="mobile-datetime">
+                <div class="mobile-time" id="mobile-time">09:41 IST</div>
+            </div>
+        </header>
+
+        <main class="mobile-content">
+            <h1 class="mobile-title">Let's Connect</h1>
+            <p class="mobile-subtitle">Open to data analysis projects, dashboard development, and real-world problem solving.</p>
+
+            <div class="mobile-email">nk1828384858@gmail.com</div>
+
+            <div class="mobile-social">
+                <a href="https://www.linkedin.com/in/nikhil-mishra-1554983b7" target="_blank" class="mobile-social-link">
+                    <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    <span>LinkedIn</span>
+                </a>
+                <a href="https://contra.com/nikhil_mishra_ofo0zwv9" target="_blank" class="mobile-social-link">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.615 14.615h-2.77v-3.077h-3.69v3.077H7.385V7.385h2.77v3.077h3.69V7.385h2.77v9.23z"/></svg>
+                    <span>Contra</span>
+                </a>
+            </div>
+
+            <p class="mobile-status">Response Time: Usually within 24 hours</p>
+        </main>
+
+        <nav class="mobile-bottom-nav">
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="skills.html">Skills</a>
+            <a href="Project.html">Projects</a>
+        </nav>
+    </div>
+
     <div class="ground-shadow"></div>
-    
+
     <div class="depth-nav" id="depth-nav">
         <a href="index.html" class="nav-item" data-index="0">Home</a>
         <a href="about.html" class="nav-item" data-index="1">About</a>
@@ -737,7 +922,18 @@
         }
         updateTime();
         setInterval(updateTime, 1000);
-        
+
+        // Mobile time update
+        function updateMobileTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const mobileTimeEl = document.getElementById('mobile-time');
+            if (mobileTimeEl) mobileTimeEl.textContent = `${hours}:${minutes} IST`;
+        }
+        updateMobileTime();
+        setInterval(updateMobileTime, 1000);
+
         const sessionTimerEl = document.getElementById('session-timer');
         const sessionStart = Date.now();
         setInterval(() => {

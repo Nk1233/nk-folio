@@ -668,56 +668,6 @@
             font-style: italic;
         }
         
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            canvas {
-                display: none !important;
-            }
-            
-            .depth-nav {
-                left: 5%;
-                gap: 12px;
-            }
-            
-            .depth-nav .nav-item {
-                font-size: 12px;
-                letter-spacing: 0.1em;
-            }
-            
-            .hero-text {
-                font-size: clamp(32px, 12vw, 80px);
-            }
-            
-            .ui-element {
-                font-size: 9px;
-            }
-            
-            .live-time {
-                top: 12px;
-                right: 12px;
-            }
-            
-            .date-display {
-                top: 26px;
-                right: 12px;
-            }
-            
-            .fps-counter {
-                top: 40px;
-                right: 12px;
-            }
-            
-            .time-greeting {
-                top: 12px;
-                left: 5%;
-            }
-            
-            .session-timer,
-            .system-status {
-                display: none;
-            }
-        }
-        
         /* Resume Link */
         .resume-link {
             position: fixed;
@@ -735,7 +685,7 @@
             z-index: 20;
             cursor: none;
         }
-        
+
         .resume-link::after {
             content: '';
             position: absolute;
@@ -746,15 +696,15 @@
             background: #000;
             transition: width 0.3s ease;
         }
-        
+
         .resume-link:hover {
             opacity: 1;
         }
-        
+
         .resume-link:hover::after {
             width: 100%;
         }
-        
+
         /* License Text */
         .license-text {
             position: fixed;
@@ -770,16 +720,372 @@
             z-index: 20;
             cursor: none;
         }
-        
+
+        /* Mobile Responsive */
         @media (max-width: 768px) {
-            .resume-link {
-                font-size: 10px;
-                bottom: 15px;
+            * {
+                cursor: auto !important;
             }
-            
+
+            html, body {
+                height: 100%;
+                overflow: hidden;
+            }
+
+            body {
+                overflow-y: auto;
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+                background: #fafafa;
+            }
+
+            canvas,
+            .custom-cursor,
+            .ground-shadow,
+            .hero-shadow,
+            .depth-nav,
+            .session-timer,
+            .system-status,
+            .fps-counter,
+            .image-frame-container,
+            .image-frame-shadow,
+            .project-nav-container,
+            .nav-hint,
+            .resume-link,
             .license-text {
-                font-size: 8px;
-                bottom: 15px;
+                display: none !important;
+            }
+
+            .mobile-container {
+                display: block;
+                min-height: 100%;
+                padding: 20px;
+                padding-bottom: 100px;
+                max-width: 480px;
+                margin: 0 auto;
+            }
+
+            .mobile-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                padding: 8px 0;
+            }
+
+            .mobile-back {
+                font-family: 'Inter', sans-serif;
+                font-size: 14px;
+                text-decoration: none;
+                color: #000;
+                opacity: 0.5;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .mobile-datetime {
+                text-align: right;
+            }
+
+            .mobile-time {
+                font-family: 'Inter', sans-serif;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            .mobile-content {
+                max-width: 100%;
+            }
+
+            /* Media Gallery - On Top with Arrows Below */
+            .mobile-media-gallery {
+                width: 100%;
+                margin-bottom: 24px;
+            }
+
+            .mobile-media-container {
+                width: 100%;
+                max-width: 100%;
+                margin: 0 auto;
+                position: relative;
+                overflow: hidden;
+                border-radius: 16px;
+                background: #fff;
+                box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            }
+
+            .mobile-media-container:has(img[src*="primary"]) {
+                max-width: min(100%, 340px);
+            }
+
+            .mobile-media-slide {
+                position: relative;
+                width: 100%;
+                height: 0;
+                overflow: hidden;
+                transition: height 0.3s ease, opacity 0.4s ease;
+                opacity: 0;
+            }
+
+            .mobile-media-slide.active {
+                height: auto;
+                opacity: 1;
+            }
+
+            .mobile-media-slide img {
+                width: 100%;
+                max-width: 100%;
+                height: auto;
+                max-height: 40vh;
+                object-fit: contain;
+                display: block;
+                margin: 0 auto;
+            }
+
+            .mobile-media-slide iframe {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 16/9;
+                border: none;
+                display: block;
+            }
+
+            .mobile-media-controls {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 24px;
+                margin-top: 16px;
+            }
+
+            .mobile-media-arrow {
+                width: 40px;
+                height: 40px;
+                background: #fff;
+                border: 1px solid rgba(0,0,0,0.08);
+                border-radius: 50%;
+                font-size: 18px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            }
+
+            .mobile-media-arrow:active {
+                background: #f5f5f5;
+                transform: scale(0.95);
+            }
+
+            .mobile-media-dots {
+                display: flex;
+                gap: 10px;
+            }
+
+            .mobile-media-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: rgba(0,0,0,0.15);
+                border: none;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+            .mobile-media-dot.active {
+                background: #000;
+                transform: scale(1.3);
+            }
+
+            .mobile-label {
+                font-family: 'Inter', sans-serif;
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 0.15em;
+                opacity: 0.4;
+                margin-bottom: 10px;
+                font-weight: 500;
+            }
+
+            .mobile-title {
+                font-family: 'Inter', sans-serif;
+                font-size: clamp(26px, 7vw, 38px);
+                font-weight: 800;
+                letter-spacing: -0.02em;
+                margin-bottom: 8px;
+                line-height: 1.15;
+            }
+
+            .mobile-tagline {
+                font-family: 'Inter', sans-serif;
+                font-size: 15px;
+                opacity: 0.6;
+                margin-bottom: 24px;
+                font-style: italic;
+                line-height: 1.4;
+            }
+
+            .mobile-project-nav-wrapper {
+                position: relative;
+                margin: 20px -20px 12px;
+            }
+
+            .mobile-project-nav {
+                display: flex;
+                gap: 10px;
+                padding: 0 20px 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+
+            .mobile-project-nav::-webkit-scrollbar {
+                display: none;
+            }
+
+            .mobile-scroll-hint {
+                font-family: 'Inter', sans-serif;
+                font-size: 11px;
+                opacity: 0.4;
+                text-align: center;
+                margin-bottom: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                font-weight: 500;
+            }
+
+            .mobile-scroll-hint::before,
+            .mobile-scroll-hint::after {
+                content: '←';
+                font-size: 10px;
+            }
+
+            .mobile-scroll-hint::after {
+                content: '→';
+            }
+
+            .mobile-project-btn {
+                flex-shrink: 0;
+                padding: 12px 18px;
+                background: #fff;
+                border: none;
+                border-radius: 10px;
+                font-family: 'Inter', sans-serif;
+                font-size: 13px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s;
+                white-space: nowrap;
+                min-width: fit-content;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            }
+
+            .mobile-project-btn.active {
+                background: #000;
+                color: #fff;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            }
+
+            .mobile-section {
+                margin-bottom: 24px;
+                padding: 18px 20px;
+                background: #fff;
+                border-radius: 14px;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            }
+
+            .mobile-section-title {
+                font-family: 'Inter', sans-serif;
+                font-size: 10px;
+                text-transform: uppercase;
+                letter-spacing: 0.2em;
+                opacity: 0.4;
+                margin-bottom: 10px;
+                font-weight: 600;
+            }
+
+            .mobile-section-text {
+                font-family: 'Inter', sans-serif;
+                font-size: 15px;
+                line-height: 1.6;
+                opacity: 0.8;
+            }
+
+            .mobile-tools {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .mobile-tool-tag {
+                font-family: 'Inter', sans-serif;
+                font-size: 13px;
+                padding: 6px 12px;
+                background: #f5f5f5;
+                border-radius: 16px;
+                font-weight: 500;
+            }
+
+            .mobile-meta {
+                font-family: 'Inter', sans-serif;
+                font-size: 14px;
+                opacity: 0.7;
+            }
+
+            .mobile-bottom-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                display: flex;
+                justify-content: space-around;
+                padding: 16px 20px 24px;
+                background: #fff;
+                border-top: 1px solid rgba(0,0,0,0.06);
+            }
+
+            .mobile-bottom-nav a {
+                font-family: 'Inter', sans-serif;
+                font-size: 11px;
+                text-decoration: none;
+                color: #000;
+                opacity: 0.4;
+                text-transform: uppercase;
+                letter-spacing: 0.12em;
+                font-weight: 500;
+                padding: 8px 12px;
+            }
+
+            .mobile-bottom-nav a.active {
+                opacity: 1;
+                background: #f5f5f5;
+                border-radius: 20px;
+            }
+
+            .hero-container,
+            .project-details-container {
+                display: none;
+            }
+
+            .ui-element {
+                display: none;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-container,
+            .mobile-header,
+            .mobile-content,
+            .mobile-bottom-nav,
+            .mobile-project-nav,
+            .mobile-image-frame,
+            .mobile-video-frame {
+                display: none;
             }
         }
     </style>
@@ -806,10 +1112,99 @@
     <a href="Resume/Nikhil%20Mishra%20%E2%80%93%20Data%20Analyst%20Resume.pdf" class="resume-link hover-target" target="_blank" rel="noopener">Resume</a>
     
     <div class="license-text">Made By Nikhil With ❤️ and lots of 🍵</div>
-    
+
+    <!-- Mobile Layout -->
+    <div class="mobile-container">
+        <header class="mobile-header">
+            <a href="index.html" class="mobile-back">← Back</a>
+            <div class="mobile-datetime">
+                <div class="mobile-time" id="mobile-time">09:41 IST</div>
+            </div>
+        </header>
+
+        <main class="mobile-content">
+            <!-- Media Gallery - On Top with Arrows Below -->
+            <div class="mobile-media-gallery">
+                <div class="mobile-media-container" id="mobile-media-container">
+                    <!-- Image Slide -->
+                    <div class="mobile-media-slide active" id="mobile-image-slide">
+                        <img id="mobile-project-image" src="" alt="Project Image">
+                    </div>
+                    <!-- Video Slide -->
+                    <div class="mobile-media-slide" id="mobile-video-slide">
+                        <iframe id="mobile-project-video" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <!-- Controls Below -->
+                <div class="mobile-media-controls">
+                    <button class="mobile-media-arrow prev" id="mobile-media-prev">‹</button>
+                    <div class="mobile-media-dots" id="mobile-media-dots">
+                        <button class="mobile-media-dot active" data-slide="0"></button>
+                        <button class="mobile-media-dot" data-slide="1"></button>
+                    </div>
+                    <button class="mobile-media-arrow next" id="mobile-media-next">›</button>
+                </div>
+            </div>
+
+            <p class="mobile-label">Selected Work</p>
+            <h1 class="mobile-title" id="mobile-project-title">Service Ops</h1>
+            <p class="mobile-tagline" id="mobile-project-tagline">Cost and performance analytics for service operations</p>
+
+            <!-- Project Selector -->
+            <div class="mobile-project-nav-wrapper">
+                <div class="mobile-project-nav" id="mobile-project-nav">
+                    <button class="mobile-project-btn active" data-index="0">Service Ops</button>
+                    <button class="mobile-project-btn" data-index="1">Ops Tracker</button>
+                    <button class="mobile-project-btn" data-index="2">Sales Pulse</button>
+                    <button class="mobile-project-btn" data-index="3">Sales Insights</button>
+                    <button class="mobile-project-btn" data-index="4">Workforce</button>
+                </div>
+                <p class="mobile-scroll-hint">Swipe to see all projects</p>
+            </div>
+
+            <!-- Project Details Cards -->
+            <div class="mobile-section">
+                <p class="mobile-section-title">The Problem</p>
+                <p class="mobile-section-text" id="mobile-project-problem">Service teams lacked visibility into cost drivers, technician performance, and order efficiency.</p>
+            </div>
+
+            <div class="mobile-section">
+                <p class="mobile-section-title">Impact</p>
+                <p class="mobile-section-text" id="mobile-project-impact">Identified consistent net losses and high-cost services, improved workload distribution.</p>
+            </div>
+
+            <div class="mobile-section">
+                <p class="mobile-section-title">My Role</p>
+                <p class="mobile-section-text" id="mobile-project-role">Data Analyst & Dashboard Developer</p>
+            </div>
+
+            <div class="mobile-section">
+                <p class="mobile-section-title">Duration</p>
+                <p class="mobile-section-text" id="mobile-project-duration">6 Hours</p>
+            </div>
+
+            <div class="mobile-section">
+                <p class="mobile-section-title">Tools & Skills</p>
+                <div class="mobile-tools" id="mobile-project-tools">
+                    <span class="mobile-tool-tag">Power BI</span>
+                    <span class="mobile-tool-tag">DAX</span>
+                    <span class="mobile-tool-tag">Power Query</span>
+                    <span class="mobile-tool-tag">Excel</span>
+                </div>
+            </div>
+        </main>
+
+        <nav class="mobile-bottom-nav">
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="skills.html">Skills</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+    </div>
+
     <!-- Ground Shadow -->
     <div class="ground-shadow"></div>
-    
+
     <!-- Depth Navigation -->
     <div class="depth-nav" id="depth-nav">
         <a href="index.html" class="nav-item" data-index="0">Home</a>
@@ -1408,6 +1803,137 @@
         
         // Initialize gallery content
         updateGalleryContent(0);
+
+        // Mobile Project Functionality
+        const mobileProjectBtns = document.querySelectorAll('.mobile-project-btn');
+        const mobileProjectTitle = document.getElementById('mobile-project-title');
+        const mobileProjectTagline = document.getElementById('mobile-project-tagline');
+        const mobileProjectProblem = document.getElementById('mobile-project-problem');
+        const mobileProjectImpact = document.getElementById('mobile-project-impact');
+        const mobileProjectRole = document.getElementById('mobile-project-role');
+        const mobileProjectDuration = document.getElementById('mobile-project-duration');
+        const mobileProjectTools = document.getElementById('mobile-project-tools');
+        const mobileProjectImage = document.getElementById('mobile-project-image');
+        const mobileProjectVideo = document.getElementById('mobile-project-video');
+        const mobileImageSlide = document.getElementById('mobile-image-slide');
+        const mobileVideoSlide = document.getElementById('mobile-video-slide');
+        const mobileMediaPrev = document.getElementById('mobile-media-prev');
+        const mobileMediaNext = document.getElementById('mobile-media-next');
+        const mobileMediaDots = document.querySelectorAll('.mobile-media-dot');
+
+        let currentMobileProject = 0;
+        let currentMediaSlide = 0;
+
+        function updateMediaSlider(slideIndex) {
+            // Remove active from all slides
+            mobileImageSlide.classList.remove('active');
+            mobileVideoSlide.classList.remove('active');
+
+            // Small delay to allow transition
+            setTimeout(() => {
+                // Show selected slide
+                if (slideIndex === 0) {
+                    mobileImageSlide.classList.add('active');
+                } else {
+                    mobileVideoSlide.classList.add('active');
+                }
+            }, 50);
+
+            // Update dots
+            mobileMediaDots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === slideIndex);
+            });
+
+            currentMediaSlide = slideIndex;
+        }
+
+        function nextMediaSlide() {
+            const next = (currentMediaSlide + 1) % 2;
+            updateMediaSlider(next);
+        }
+
+        function prevMediaSlide() {
+            const prev = (currentMediaSlide - 1 + 2) % 2;
+            updateMediaSlider(prev);
+        }
+
+        mobileMediaPrev.addEventListener('click', prevMediaSlide);
+        mobileMediaNext.addEventListener('click', nextMediaSlide);
+
+        mobileMediaDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const slideIndex = parseInt(dot.dataset.slide);
+                updateMediaSlider(slideIndex);
+            });
+        });
+
+        function updateMobileProject(index) {
+            const data = projectsData[index];
+            if (!data) return;
+
+            mobileProjectTitle.textContent = data.title;
+            mobileProjectTagline.textContent = data.tagline;
+            mobileProjectProblem.textContent = data.problem;
+            mobileProjectImpact.textContent = data.impact;
+            mobileProjectRole.textContent = data.role;
+            mobileProjectDuration.textContent = data.duration;
+
+            // Update tools
+            mobileProjectTools.innerHTML = '';
+            data.tools.forEach(tool => {
+                const tag = document.createElement('span');
+                tag.className = 'mobile-tool-tag';
+                tag.textContent = tool;
+                mobileProjectTools.appendChild(tag);
+            });
+
+            // Update image
+            if (data.images && data.images.length > 0) {
+                mobileProjectImage.src = data.images[0];
+                mobileImageSlide.style.display = 'flex';
+            } else {
+                mobileImageSlide.style.display = 'none';
+            }
+
+            // Update video
+            if (data.video && data.video.trim() !== '') {
+                mobileProjectVideo.src = data.video;
+                mobileVideoSlide.style.display = 'flex';
+            } else {
+                mobileVideoSlide.style.display = 'none';
+            }
+
+            // Reset to image slide when switching projects
+            updateMediaSlider(0);
+
+            // Update button states
+            mobileProjectBtns.forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+
+            currentMobileProject = index;
+        }
+
+        mobileProjectBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const index = parseInt(btn.dataset.index);
+                updateMobileProject(index);
+            });
+        });
+
+        // Initialize mobile project
+        updateMobileProject(0);
+
+        // Mobile time update
+        function updateMobileTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const mobileTimeEl = document.getElementById('mobile-time');
+            if (mobileTimeEl) mobileTimeEl.textContent = `${hours}:${minutes} IST`;
+        }
+        updateMobileTime();
+        setInterval(updateMobileTime, 1000);
     </script>
     
     <script>

@@ -376,50 +376,182 @@
         
         /* Mobile Responsive */
         @media (max-width: 768px) {
-            canvas {
+            * {
+                cursor: auto !important;
+            }
+
+            html, body {
+                height: 100%;
+                overflow: hidden;
+            }
+
+            body {
+                overflow-y: auto;
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+                background: #fafafa;
+            }
+
+            /* Hide desktop elements */
+            canvas,
+            .custom-cursor,
+            .ground-shadow,
+            .hero-shadow,
+            .depth-nav,
+            .session-timer,
+            .system-status,
+            .fps-counter {
                 display: none !important;
             }
-            
-            .depth-nav {
-                left: 5%;
-                gap: 12px;
+
+            /* Mobile Container */
+            .mobile-container {
+                display: block;
+                min-height: 100%;
+                padding: 20px;
+                padding-bottom: 100px;
+                max-width: 480px;
+                margin: 0 auto;
             }
-            
-            .depth-nav .nav-item {
+
+            /* Mobile Header */
+            .mobile-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 24px;
+                padding: 8px 0;
+            }
+
+            .mobile-back {
+                font-family: 'Inter', sans-serif;
+                font-size: 14px;
+                text-decoration: none;
+                color: #000;
+                opacity: 0.5;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .mobile-datetime {
+                text-align: right;
+            }
+
+            .mobile-time {
+                font-family: 'Inter', sans-serif;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            /* Mobile Content */
+            .mobile-content {
+                max-width: 100%;
+            }
+
+            .mobile-title {
+                font-family: 'Inter', sans-serif;
+                font-size: clamp(32px, 10vw, 52px);
+                font-weight: 800;
+                letter-spacing: -0.03em;
+                margin-bottom: 8px;
+                line-height: 1;
+            }
+
+            .mobile-role {
+                font-family: 'Inter', sans-serif;
+                font-size: 15px;
+                opacity: 0.6;
+                margin-bottom: 28px;
+                font-weight: 500;
+            }
+
+            .mobile-text {
+                font-family: 'Inter', sans-serif;
+                font-size: 15px;
+                line-height: 1.7;
+                opacity: 0.75;
+                margin-bottom: 18px;
+            }
+
+            .mobile-skills {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin: 24px 0;
+            }
+
+            .mobile-skill-tag {
+                font-family: 'Inter', sans-serif;
+                font-size: 13px;
+                padding: 8px 14px;
+                background: #fff;
+                border-radius: 20px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+                font-weight: 500;
+            }
+
+            .mobile-status {
+                font-family: 'Courier New', monospace;
                 font-size: 12px;
-                letter-spacing: 0.1em;
+                opacity: 0.5;
+                margin-top: 32px;
+                padding: 16px;
+                background: #fff;
+                border-radius: 12px;
+                text-align: center;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             }
-            
-            .hero-text {
-                font-size: clamp(32px, 12vw, 80px);
+
+            /* Mobile Bottom Nav */
+            .mobile-bottom-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                display: flex;
+                justify-content: space-around;
+                padding: 16px 20px 24px;
+                background: #fff;
+                border-top: 1px solid rgba(0,0,0,0.06);
             }
-            
+
+            .mobile-bottom-nav a {
+                font-family: 'Inter', sans-serif;
+                font-size: 11px;
+                text-decoration: none;
+                color: #000;
+                opacity: 0.4;
+                text-transform: uppercase;
+                letter-spacing: 0.12em;
+                font-weight: 500;
+                padding: 8px 12px;
+            }
+
+            .mobile-bottom-nav a.active {
+                opacity: 1;
+                background: #f5f5f5;
+                border-radius: 20px;
+            }
+
+            /* Hide desktop elements on mobile */
+            .hero-container,
+            .resume-link,
+            .license-text {
+                display: none;
+            }
+
             .ui-element {
-                font-size: 9px;
+                display: none;
             }
-            
-            .live-time {
-                top: 12px;
-                right: 12px;
-            }
-            
-            .date-display {
-                top: 26px;
-                right: 12px;
-            }
-            
-            .fps-counter {
-                top: 40px;
-                right: 12px;
-            }
-            
-            .time-greeting {
-                top: 12px;
-                left: 5%;
-            }
-            
-            .session-timer,
-            .system-status {
+        }
+
+        @media (min-width: 769px) {
+            .mobile-container,
+            .mobile-header,
+            .mobile-content,
+            .mobile-bottom-nav {
                 display: none;
             }
         }
@@ -512,10 +644,48 @@
     <a href="Resume/Nikhil%20Mishra%20%E2%80%93%20Data%20Analyst%20Resume.pdf" class="resume-link hover-target" target="_blank" rel="noopener">Resume</a>
     
     <div class="license-text">Made By Nikhil With ❤️ and lots of 🍵</div>
-    
+
+    <!-- Mobile Layout -->
+    <div class="mobile-container">
+        <header class="mobile-header">
+            <a href="index.html" class="mobile-back">← Back</a>
+            <div class="mobile-datetime">
+                <div class="mobile-time" id="mobile-time">09:41 IST</div>
+            </div>
+        </header>
+
+        <main class="mobile-content">
+            <h1 class="mobile-title">Nikhil</h1>
+            <p class="mobile-role">Data Science Student / Aspiring Data Analyst</p>
+
+            <p class="mobile-text">I work with data to understand patterns, extract insights, and support better decisions. My focus is on clarity, accuracy, and building systems that make data useful.</p>
+
+            <p class="mobile-text">Currently building interactive dashboards and analyzing datasets to uncover meaningful trends.</p>
+
+            <div class="mobile-skills">
+                <span class="mobile-skill-tag">Python</span>
+                <span class="mobile-skill-tag">SQL</span>
+                <span class="mobile-skill-tag">Data Analysis</span>
+                <span class="mobile-skill-tag">Power BI</span>
+                <span class="mobile-skill-tag">Machine Learning</span>
+            </div>
+
+            <p class="mobile-text">I approach problems with structure and logic — break them down, analyze them, and present insights that matter.</p>
+
+            <p class="mobile-status">Status: Learning. Building. Improving...</p>
+        </main>
+
+        <nav class="mobile-bottom-nav">
+            <a href="index.html">Home</a>
+            <a href="skills.html">Skills</a>
+            <a href="Project.html">Projects</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+    </div>
+
     <!-- Ground Shadow -->
     <div class="ground-shadow"></div>
-    
+
     <!-- Depth Navigation -->
     <div class="depth-nav" id="depth-nav">
         <a href="index.html" class="nav-item" data-index="0">Home</a>
@@ -806,7 +976,18 @@
         }
         updateTime();
         setInterval(updateTime, 1000);
-        
+
+        // Mobile time update
+        function updateMobileTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const mobileTimeEl = document.getElementById('mobile-time');
+            if (mobileTimeEl) mobileTimeEl.textContent = `${hours}:${minutes} IST`;
+        }
+        updateMobileTime();
+        setInterval(updateMobileTime, 1000);
+
         // Session Timer
         const sessionTimerEl = document.getElementById('session-timer');
         const sessionStart = Date.now();

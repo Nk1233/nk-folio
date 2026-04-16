@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Particle Sphere</title>
+    <title>Nikhil — Data Science Portfolio</title>
     <style>
         * {
             margin: 0;
@@ -316,50 +316,224 @@
         
         /* Mobile Responsive */
         @media (max-width: 768px) {
-            canvas {
+            * {
+                cursor: auto !important;
+            }
+
+            html, body {
+                height: 100%;
+                overflow: hidden;
+            }
+
+            body {
+                overflow-y: auto;
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+                background: #fafafa;
+            }
+
+            /* Hide desktop elements */
+            canvas,
+            .custom-cursor,
+            .ground-shadow,
+            .hero-shadow,
+            .depth-nav,
+            .session-timer,
+            .system-status,
+            .fps-counter {
                 display: none !important;
             }
-            
-            .depth-nav {
-                left: 5%;
+
+            /* Mobile Container */
+            .mobile-container {
+                display: block;
+                min-height: 100%;
+                padding: 20px;
+                padding-bottom: 100px;
+                max-width: 480px;
+                margin: 0 auto;
+            }
+
+            /* Mobile Header */
+            .mobile-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 32px;
+                padding: 8px 0;
+            }
+
+            .mobile-greeting {
+                font-family: 'Inter', sans-serif;
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 0.12em;
+                opacity: 0.5;
+                font-weight: 500;
+            }
+
+            .mobile-datetime {
+                text-align: right;
+            }
+
+            .mobile-time {
+                font-family: 'Inter', sans-serif;
+                font-size: 13px;
+                font-weight: 600;
+                letter-spacing: 0.02em;
+            }
+
+            .mobile-date {
+                font-family: 'Inter', sans-serif;
+                font-size: 10px;
+                opacity: 0.4;
+                margin-top: 2px;
+            }
+
+            /* Mobile Hero */
+            .mobile-hero {
+                margin-bottom: 40px;
+                text-align: center;
+            }
+
+            .mobile-hero-title {
+                font-family: 'Inter', sans-serif;
+                font-size: clamp(42px, 14vw, 64px);
+                font-weight: 800;
+                letter-spacing: -0.03em;
+                line-height: 0.95;
+                margin-bottom: 12px;
+            }
+
+            .mobile-hero-subtitle {
+                font-family: 'Inter', sans-serif;
+                font-size: clamp(18px, 5vw, 24px);
+                font-weight: 500;
+                opacity: 0.7;
+                margin-bottom: 20px;
+            }
+
+            .mobile-hero-tagline {
+                font-family: 'Inter', sans-serif;
+                font-size: 15px;
+                line-height: 1.6;
+                opacity: 0.6;
+                max-width: 280px;
+                margin: 0 auto;
+            }
+
+            /* Mobile Nav Cards */
+            .mobile-nav {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
                 gap: 12px;
+                margin-bottom: 40px;
             }
-            
-            .depth-nav .nav-item {
-                font-size: 12px;
-                letter-spacing: 0.1em;
+
+            .mobile-nav-item {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                justify-content: space-between;
+                padding: 20px 16px;
+                background: #fff;
+                border-radius: 16px;
+                text-decoration: none;
+                color: #000;
+                transition: all 0.25s ease;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+                min-height: 100px;
             }
-            
-            .hero-text {
-                font-size: clamp(32px, 12vw, 80px);
+
+            .mobile-nav-item:active {
+                transform: scale(0.96);
+                box-shadow: 0 1px 6px rgba(0,0,0,0.06);
             }
-            
+
+            .mobile-nav-label {
+                font-family: 'Inter', sans-serif;
+                font-size: 16px;
+                font-weight: 600;
+                letter-spacing: -0.01em;
+            }
+
+            .mobile-nav-arrow {
+                font-size: 18px;
+                opacity: 0.3;
+                align-self: flex-end;
+            }
+
+            /* Mobile Resume Section */
+            .mobile-resume-section {
+                margin-bottom: 48px;
+                text-align: center;
+            }
+
+            .mobile-section-title {
+                font-family: 'Inter', sans-serif;
+                font-size: 10px;
+                text-transform: uppercase;
+                letter-spacing: 0.2em;
+                opacity: 0.4;
+                margin-bottom: 16px;
+                font-weight: 500;
+            }
+
+            .mobile-resume-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                padding: 14px 28px;
+                background: #000;
+                color: #fff;
+                text-decoration: none;
+                border-radius: 100px;
+                font-family: 'Inter', sans-serif;
+                font-size: 14px;
+                font-weight: 600;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+                transition: all 0.2s;
+            }
+
+            .mobile-resume-btn:active {
+                transform: scale(0.96);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            }
+
+            /* Mobile Footer */
+            .mobile-footer {
+                padding: 24px 0;
+                text-align: center;
+            }
+
+            .mobile-footer-text {
+                font-family: 'Inter', sans-serif;
+                font-size: 11px;
+                opacity: 0.35;
+                font-weight: 500;
+            }
+
+            /* Hide desktop elements on mobile */
+            .hero-container,
+            .resume-link,
+            .license-text {
+                display: none;
+            }
+
+            /* Adjust UI elements for mobile header */
             .ui-element {
-                font-size: 9px;
+                display: none;
             }
-            
-            .live-time {
-                top: 12px;
-                right: 12px;
-            }
-            
-            .date-display {
-                top: 26px;
-                right: 12px;
-            }
-            
-            .fps-counter {
-                top: 40px;
-                right: 12px;
-            }
-            
-            .time-greeting {
-                top: 12px;
-                left: 5%;
-            }
-            
-            .session-timer,
-            .system-status {
+        }
+
+        /* Desktop-only elements hidden on mobile */
+        @media (min-width: 769px) {
+            .mobile-container,
+            .mobile-header,
+            .mobile-hero,
+            .mobile-nav,
+            .mobile-resume-section,
+            .mobile-footer {
                 display: none;
             }
         }
@@ -453,7 +627,55 @@
     <a href="Resume/Nikhil%20Mishra%20%E2%80%93%20Data%20Analyst%20Resume.pdf" class="resume-link hover-target" target="_blank" rel="noopener">Resume</a>
     
     <div class="license-text">Made By Nikhil With ❤️ and lots of 🍵</div>
-    
+
+    <!-- Mobile Layout -->
+    <div class="mobile-container">
+        <header class="mobile-header">
+            <div class="mobile-greeting" id="mobile-greeting">Good Morning</div>
+            <div class="mobile-datetime">
+                <div class="mobile-time" id="mobile-time">09:41 IST</div>
+                <div class="mobile-date" id="mobile-date">16 Apr 2026</div>
+            </div>
+        </header>
+
+        <section class="mobile-hero">
+            <h1 class="mobile-hero-title">Hello!</h1>
+            <p class="mobile-hero-subtitle">I Am Nikhil</p>
+            <p class="mobile-hero-tagline">Data enthusiast exploring patterns, building dashboards, and turning raw information into insights that matter.</p>
+        </section>
+
+        <nav class="mobile-nav">
+            <a href="about.html" class="mobile-nav-item">
+                <span class="mobile-nav-label">About</span>
+                <span class="mobile-nav-arrow">→</span>
+            </a>
+            <a href="skills.html" class="mobile-nav-item">
+                <span class="mobile-nav-label">Skills</span>
+                <span class="mobile-nav-arrow">→</span>
+            </a>
+            <a href="Project.html" class="mobile-nav-item">
+                <span class="mobile-nav-label">Projects</span>
+                <span class="mobile-nav-arrow">→</span>
+            </a>
+            <a href="contact.html" class="mobile-nav-item">
+                <span class="mobile-nav-label">Contact</span>
+                <span class="mobile-nav-arrow">→</span>
+            </a>
+        </nav>
+
+        <section class="mobile-resume-section">
+            <p class="mobile-section-title">Resume</p>
+            <a href="Resume/Nikhil%20Mishra%20%E2%80%93%20Data%20Analyst%20Resume.pdf" class="mobile-resume-btn" target="_blank">
+                <span>View Resume</span>
+                <span>↓</span>
+            </a>
+        </section>
+
+        <footer class="mobile-footer">
+            <p class="mobile-footer-text">Made By Nikhil With ❤️ and lots of 🍵</p>
+        </footer>
+    </div>
+
     <!-- Ground Shadow -->
     <div class="ground-shadow"></div>
     
@@ -742,6 +964,25 @@
         }
         updateTime();
         setInterval(updateTime, 1000);
+
+        // Mobile time update
+        function updateMobileTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('mobile-time').textContent = `${hours}:${minutes} IST`;
+
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            document.getElementById('mobile-date').textContent = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+
+            const hour = now.getHours();
+            let greeting = 'Evening';
+            if (hour < 12) greeting = 'Morning';
+            else if (hour < 17) greeting = 'Afternoon';
+            document.getElementById('mobile-greeting').textContent = `Good ${greeting}`;
+        }
+        updateMobileTime();
+        setInterval(updateMobileTime, 1000);
         
         // Session Timer
         const sessionTimerEl = document.getElementById('session-timer');
