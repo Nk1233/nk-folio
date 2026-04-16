@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact</title>
+    <!-- v2 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #ffffff;
+            overflow: hidden;
+            cursor: none;
+        }
+        
+        /* Simple Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+        
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        
+        .loading-text {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: clamp(16px, 3vw, 24px);
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            color: #000;
+            text-align: center;
+        }
+        
+        .loading-progress-container {
+            width: 120px;
+            height: 2px;
+            background: rgba(0, 0, 0, 0.1);
+            margin-top: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loading-progress-bar {
+            height: 100%;
+            background: #000;
+            width: 0%;
+            transition: width 0.05s linear;
+        }
+        
+        canvas {
+            display: block;
+        }
+        
+        /* Custom Cursor */
+        .custom-cursor {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 1.5px solid #000;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        border-width 0.3s ease,
+                        background 0.3s ease;
+        }
+        
+        .custom-cursor.hover-mode {
+            width: 8px;
+            height: 8px;
+            border-width: 0;
+            background: #000;
+        }
+        
+        /* Minimal UI Elements */
+        .ui-element {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            color: #000;
+            opacity: 0.55;
+            position: fixed;
+            pointer-events: none;
+            z-index: 20;
+            transition: opacity 0.3s ease;
+        }
+        
+        .ui-element:hover {
+            opacity: 0.8;
+        }
+        
+        .live-time { top: 20px; right: 20px; }
+        .date-display { top: 38px; right: 20px; font-size: 10px; opacity: 0.45; }
+        .fps-counter { top: 54px; right: 20px; font-size: 9px; opacity: 0.4; font-family: 'Courier New', monospace; }
+        .time-greeting { top: 20px; left: 3%; font-size: 10px; opacity: 0.5; text-transform: uppercase; }
+        .session-timer { bottom: 20px; right: 20px; font-size: 10px; opacity: 0.45; font-family: 'Courier New', monospace; }
+        .system-status { bottom: 38px; right: 20px; font-size: 9px; opacity: 0.4; }
+        /* Hero Text */
+        .hero-container {
+            position: fixed;
+            left: 12%;
+            top: 8%;
+            z-index: 10;
+            pointer-events: auto;
+            max-width: 38vw;
+        }
+        
+        .hero-text {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(56px, 7vw, 120px);
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: #000;
+            line-height: 1.1;
+        }
+        
+        .hero-text .line { display: block; margin: 0 !important; padding: 0 !important; }
+        
+        .hero-text .letter {
+            display: inline-block;
+            transition: transform 0.3s ease-out;
+            will-change: transform;
+        }
+        
+        .hero-text .name-line {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(36px, 4.5vw, 72px);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.15em;
+            line-height: 1.05;
+        }
+        
+        .hero-text .role-line {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(12px, 1.4vw, 16px);
+            font-weight: 600;
+            opacity: 0.9;
+            margin-bottom: 20px !important;
+            margin-left: 1%;
+            letter-spacing: 0.02em;
+            line-height: 1 !important;
+            text-shadow: none;
+        }
+        
+        .hero-text .para {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(12px, 1.3vw, 16px);
+            font-weight: 400;
+            opacity: 0.8;
+            margin-bottom: 0.6em;
+            margin-left: 2%;
+            max-width: 50ch;
+            line-height: 1.4;
+            text-shadow: none;
+        }
+        
+        .hero-text .contact-line {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(13px, 1.4vw, 17px);
+            font-weight: 500;
+            opacity: 0.9;
+            margin: 1em 0;
+            margin-left: 2%;
+        }
+        
+        .hero-text .contact-label {
+            font-weight: 600;
+            opacity: 0.6;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        
+        .hero-text .status-line {
+            font-family: 'Courier New', 'Monaco', monospace;
+            font-size: clamp(10px, 1vw, 12px);
+            font-weight: 500;
+            opacity: 0.7;
+            margin-top: 0.6em;
+            margin-left: 1%;
+            letter-spacing: 0.08em;
+            text-shadow: none;
+        }
+        
+        .hero-text .dots { opacity: 0.6; }
+        
+        .hero-text .blink-dot {
+            opacity: 1;
+            animation: blink 1s ease-in-out infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        /* Email Display */
+        .email-display {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(14px, 1.6vw, 18px);
+            font-weight: 500;
+            opacity: 0.9;
+            margin: 8px 0;
+            margin-left: 1%;
+            letter-spacing: 0.02em;
+        }
+        
+        /* Social Links */
+        .social-links {
+            display: flex;
+            gap: 1.2em;
+            align-items: center;
+            margin-top: 0.8em;
+            margin-left: 1%;
+        }
+        
+        .social-link {
+            display: flex;
+            align-items: center;
+            gap: 0.4em;
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(11px, 1.1vw, 13px);
+            font-weight: 500;
+            color: #000;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+            cursor: none;
+        }
+        
+        .social-link:hover {
+            opacity: 1;
+        }
+        
+        .social-link svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+        
+        /* 3D Depth Effect */
+        .hero-text {
+            text-shadow: 
+                1px 1px 0 rgba(0,0,0,0.15),
+                2px 2px 0 rgba(0,0,0,0.12),
+                3px 3px 0 rgba(0,0,0,0.09),
+                4px 4px 0 rgba(0,0,0,0.06),
+                5px 5px 0 rgba(0,0,0,0.04),
+                6px 6px 0 rgba(0,0,0,0.02),
+                12px 24px 48px rgba(0,0,0,0.18);
+        }
+        
+        .hero-shadow {
+            position: absolute;
+            top: 12px;
+            left: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(56px, 7vw, 120px);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: transparent;
+            text-shadow: 0 30px 60px rgba(0,0,0,0.25);
+            line-height: 1;
+            z-index: -1;
+            opacity: 0.6;
+            will-change: transform, opacity;
+            filter: blur(3px);
+        }
+        
+        .ground-shadow {
+            position: fixed;
+            left: 12%;
+            bottom: 15%;
+            width: 300px;
+            height: 60px;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 40%, transparent 70%);
+            filter: blur(20px);
+            z-index: 5;
+            pointer-events: none;
+        }
+        
+        /* Depth Navigation */
+        .depth-nav {
+            position: fixed;
+            left: 3%;
+            top: 55%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 15;
+            pointer-events: none;
+        }
+        
+        .depth-nav .nav-item {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            display: block;
+            text-decoration: none;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #000;
+            cursor: none;
+            pointer-events: auto;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: left center;
+            position: relative;
+            padding-left: 0;
+        }
+        
+        .depth-nav .nav-item.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            transform: scaleX(0);
+            transform-origin: left center;
+            width: 100%;
+            height: 1px;
+            background: #000;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .depth-nav .nav-item.active:hover::after {
+            transform: scaleX(1);
+        }
+        
+        .depth-nav .nav-item.active {
+            font-size: 18px;
+            font-weight: 500;
+            opacity: 1;
+            filter: blur(0);
+            transform: translateX(0) scale(1);
+        }
+        
+        .depth-nav .nav-item.near {
+            font-size: 15px;
+            opacity: 0.6;
+            filter: blur(0.3px);
+            transform: translateX(-8px) scale(0.95);
+        }
+        
+        .depth-nav .nav-item.far {
+            font-size: 13px;
+            opacity: 0.35;
+            filter: blur(0.8px);
+            transform: translateX(-15px) scale(0.88);
+        }
+        
+        .depth-nav .nav-item.distant {
+            font-size: 11px;
+            opacity: 0.18;
+            filter: blur(1.5px);
+            transform: translateX(-22px) scale(0.78);
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            canvas {
+                display: none !important;
+            }
+            
+            .depth-nav {
+                left: 5%;
+                gap: 12px;
+            }
+            
+            .depth-nav .nav-item {
+                font-size: 12px;
+                letter-spacing: 0.1em;
+            }
+            
+            .hero-text {
+                font-size: clamp(32px, 12vw, 80px);
+            }
+            
+            .ui-element {
+                font-size: 9px;
+            }
+            
+            .live-time {
+                top: 12px;
+                right: 12px;
+            }
+            
+            .date-display {
+                top: 26px;
+                right: 12px;
+            }
+            
+            .fps-counter {
+                top: 40px;
+                right: 12px;
+            }
+            
+            .time-greeting {
+                top: 12px;
+                left: 5%;
+            }
+            
+            .session-timer,
+            .system-status {
+                display: none;
+            }
+        }
+        
+        /* Resume Link */
+        .resume-link {
+            position: fixed;
+            bottom: 20px;
+            left: 3%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #000;
+            text-decoration: none;
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+            z-index: 20;
+            cursor: none;
+        }
+        
+        .resume-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: #000;
+            transition: width 0.3s ease;
+        }
+        
+        .resume-link:hover {
+            opacity: 1;
+        }
+        
+        .resume-link:hover::after {
+            width: 100%;
+        }
+        
+        /* License Text */
+        .license-text {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            color: #000;
+            opacity: 0.4;
+            z-index: 20;
+            cursor: default;
+        }
+        
+        @media (max-width: 768px) {
+            .resume-link {
+                font-size: 10px;
+                bottom: 15px;
+            }
+            
+            .license-text {
+                font-size: 8px;
+                bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-text">Loading...</div>
+        <div class="loading-progress-container">
+            <div class="loading-progress-bar" id="loading-progress-bar"></div>
+        </div>
+    </div>
+    
+    <div class="custom-cursor" id="custom-cursor"></div>
+    
+    <div class="ui-element live-time" id="live-time"></div>
+    <div class="ui-element date-display" id="date-display"></div>
+    <div class="ui-element fps-counter" id="fps-counter">FPS: --</div>
+    <div class="ui-element time-greeting" id="time-greeting"></div>
+    <div class="ui-element session-timer" id="session-timer">Session: 00:00</div>
+    <div class="ui-element system-status" id="system-status">System Online</div>
+    <a href="Resume/Nikhil%20Mishra%20%E2%80%93%20Data%20Analyst%20Resume.pdf" class="resume-link hover-target" target="_blank" rel="noopener">Resume</a>
+    
+    <div class="license-text">Made By Nikhil With ❤️ and lots of 🍵</div>
+    
+    <div class="ground-shadow"></div>
+    
+    <div class="depth-nav" id="depth-nav">
+        <a href="index.html" class="nav-item" data-index="0">Home</a>
+        <a href="about.html" class="nav-item" data-index="1">About</a>
+        <a href="skills.html" class="nav-item" data-index="2">Skills</a>
+        <a href="Project.html" class="nav-item active" data-index="3">Project</a>
+    </div>
+    
+    <div class="hero-container">
+        <div class="hero-shadow">
+            <div>Contact</div>
+        </div>
+        <div class="hero-text" id="hero-text">
+            <div class="line name-line">
+                <span class="letter">L</span><span class="letter">e</span><span class="letter">t</span><span class="letter">'</span><span class="letter">s</span>
+                <span class="letter"> </span>
+                <span class="letter">C</span><span class="letter">o</span><span class="letter">n</span><span class="letter">n</span><span class="letter">e</span><span class="letter">c</span><span class="letter">t</span>
+            </div>
+            <div class="line role-line">Open to data analysis projects, dashboard development, and real-world problem solving.</div>
+            <div class="email-display">nk1828384858@gmail.com</div>
+            
+            <div class="social-links">
+                <a href="https://www.linkedin.com/in/nikhil-mishra-1554983b7" target="_blank" class="social-link" title="LinkedIn">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                    </svg>
+                    <span>LinkedIn</span>
+                </a>
+                <a href="https://contra.com/nikhil_mishra_ofo0zwv9" target="_blank" class="social-link" title="Contra">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.615 14.615h-2.77v-3.077h-3.69v3.077H7.385V7.385h2.77v3.077h3.69V7.385h2.77v9.23z"/>
+                    </svg>
+                    <span>Contra</span>
+                </a>
+            </div>
+            
+            <div class="line status-line">Response Time: Usually within 24 hours<span class="dots">...</span><span class="blink-dot">.</span></div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        // Custom Cursor
+        const customCursor = document.getElementById('custom-cursor');
+        let cursorX = 0, cursorY = 0, isHoveringNav = false;
+        
+        document.addEventListener('mousemove', (e) => {
+            cursorX = e.clientX; cursorY = e.clientY;
+            customCursor.style.left = cursorX + 'px';
+            customCursor.style.top = cursorY + 'px';
+        });
+        
+        // Hero Text
+        const heroText = document.getElementById('hero-text');
+        const heroShadow = document.querySelector('.hero-shadow');
+        const letters = heroText.querySelectorAll('.letter');
+        const letterData = [];
+        
+        letters.forEach((letter, i) => {
+            const rect = letter.getBoundingClientRect();
+            letterData.push({ el: letter, x: rect.left + rect.width/2, y: rect.top + rect.height/2, currentX: 0, currentY: 0 });
+        });
+        
+        let floatPhase = 0;
+        function updateHeroText() {
+            floatPhase += 0.02;
+            const containerRect = heroText.getBoundingClientRect();
+            const textCenterX = containerRect.left + containerRect.width/2;
+            const textCenterY = containerRect.top + containerRect.height/2;
+            const dx = cursorX - textCenterX;
+            const dy = cursorY - textCenterY;
+            const cursorDist = Math.sqrt(dx*dx + dy*dy);
+            const globalInfluence = Math.max(0, 1 - cursorDist/300);
+            
+            heroShadow.style.transform = `translate(${dx*0.02*globalInfluence}px, 0) scale(${1 + globalInfluence*0.1})`;
+            heroShadow.style.opacity = 0.6 + globalInfluence*0.2;
+            
+            letters.forEach((letter, i) => {
+                const data = letterData[i];
+                const rect = letter.getBoundingClientRect();
+                const letterX = rect.left + rect.width/2;
+                const letterY = rect.top + rect.height/2;
+                const ldx = cursorX - letterX;
+                const ldy = cursorY - letterY;
+                const ldist = Math.sqrt(ldx*ldx + ldy*ldy);
+                const influence = Math.max(0, 1 - ldist/200);
+                const angle = Math.atan2(ldy, ldx);
+                const pushX = -Math.cos(angle) * 15 * influence;
+                const pushY = -Math.sin(angle) * 15 * influence;
+                const floatY = Math.sin(floatPhase + i*0.3) * 3;
+                data.currentX += (pushX - data.currentX) * 0.1;
+                data.currentY += (pushY + floatY - data.currentY) * 0.1;
+                letter.style.transform = `translate(${data.currentX.toFixed(2)}px, ${data.currentY.toFixed(2)}px)`;
+            });
+            requestAnimationFrame(updateHeroText);
+        }
+        updateHeroText();
+        
+        // Navigation
+        const navItems = document.querySelectorAll('.depth-nav .nav-item');
+        let activeIndex = 3; // Contact is active
+        
+        function updateNavDepth() {
+            navItems.forEach((item, index) => {
+                const diff = Math.abs(index - activeIndex);
+                item.classList.remove('active', 'near', 'far', 'distant');
+                if (diff === 0) item.classList.add('active');
+                else if (diff === 1) item.classList.add('near');
+                else if (diff === 2) item.classList.add('far');
+                else item.classList.add('distant');
+            });
+        }
+        
+        document.addEventListener('mousemove', (e) => {
+            const xPercent = (e.clientX/window.innerWidth - 0.5) * 2;
+            const yPercent = (e.clientY/window.innerHeight - 0.5) * 2;
+            navItems.forEach((item, index) => {
+                const diff = index - activeIndex;
+                const depth = Math.abs(diff) + 1;
+                item.style.setProperty('--parallax-x', `${xPercent * depth * 3}px`);
+                item.style.setProperty('--parallax-y', `${yPercent * depth * 2}px`);
+            });
+        });
+        
+        // Page URLs for navigation
+        const pageUrls = ['index.html', 'about.html', 'Project.html', 'contact.html'];
+        
+        navItems.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                if (index !== targetIndex) {
+                    window.location.href = pageUrls[index];
+                }
+            });
+            item.addEventListener('mouseenter', () => {
+                if (item.classList.contains('active')) {
+                    isHoveringNav = true;
+                    customCursor.classList.add('hover-mode');
+                }
+            });
+            item.addEventListener('mouseleave', () => {
+                isHoveringNav = false;
+                customCursor.classList.remove('hover-mode');
+            });
+        });
+        
+        // Track hover-target elements (resume link, etc.)
+        const hoverTargets = document.querySelectorAll('.hover-target');
+        hoverTargets.forEach(target => {
+            target.addEventListener('mouseenter', () => {
+                customCursor.classList.add('hover-mode');
+            });
+            target.addEventListener('mouseleave', () => {
+                customCursor.classList.remove('hover-mode');
+            });
+        });
+        
+        // Social links hover cursor effect
+        const socialLinks = document.querySelectorAll('.social-link');
+        socialLinks.forEach((link) => {
+            link.addEventListener('mouseenter', () => {
+                isHoveringNav = true;
+                customCursor.classList.add('hover-mode');
+            });
+            link.addEventListener('mouseleave', () => {
+                isHoveringNav = false;
+                customCursor.classList.remove('hover-mode');
+            });
+        });
+        
+        let targetIndex = 3, currentIndex = 3, isAnimating = false, lastScrollTime = 0;
+        const scrollCooldown = 400;
+        
+        function lerpIndex() {
+            const diff = targetIndex - currentIndex;
+            if (Math.abs(diff) > 0.001) {
+                currentIndex += diff * 0.15;
+                activeIndex = Math.round(currentIndex);
+                updateNavDepth();
+                requestAnimationFrame(lerpIndex);
+            } else {
+                currentIndex = targetIndex;
+                activeIndex = Math.round(currentIndex);
+                updateNavDepth();
+                isAnimating = false;
+            }
+        }
+        
+        document.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const now = Date.now();
+            if (now - lastScrollTime < scrollCooldown) return;
+            const direction = e.deltaY > 0 ? 1 : -1;
+            const newTarget = Math.max(0, Math.min(navItems.length - 1, targetIndex + direction));
+            if (newTarget !== targetIndex) {
+                targetIndex = newTarget;
+                lastScrollTime = now;
+                if (!isAnimating) { isAnimating = true; lerpIndex(); }
+            }
+        }, { passive: false });
+        
+        updateNavDepth();
+        
+        // UI Elements
+        const liveTimeEl = document.getElementById('live-time');
+        const dateDisplayEl = document.getElementById('date-display');
+        const timeGreetingEl = document.getElementById('time-greeting');
+        
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            liveTimeEl.textContent = `${hours}:${minutes} IST`;
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            dateDisplayEl.textContent = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+            const hour = now.getHours();
+            timeGreetingEl.textContent = `Good ${hour < 12 ? 'Morning' : hour < 17 ? 'Afternoon' : 'Evening'}`;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        const sessionTimerEl = document.getElementById('session-timer');
+        const sessionStart = Date.now();
+        setInterval(() => {
+            const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+            sessionTimerEl.textContent = `Session: ${String(Math.floor(elapsed/60)).padStart(2,'0')}:${String(elapsed%60).padStart(2,'0')}`;
+        }, 1000);
+        
+        const fpsEl = document.getElementById('fps-counter');
+        let lastTimeFPS = performance.now(), frameCount = 0;
+        function updateFPS() {
+            const now = performance.now();
+            frameCount++;
+            if (now - lastTimeFPS >= 1000) {
+                fpsEl.textContent = `FPS: ${frameCount}`;
+                frameCount = 0;
+                lastTimeFPS = now;
+            }
+            requestAnimationFrame(updateFPS);
+        }
+        updateFPS();
+        
+        const systemStatusEl = document.getElementById('system-status');
+        setInterval(() => {
+            systemStatusEl.style.opacity = '0.55';
+            setTimeout(() => systemStatusEl.style.opacity = '0.4', 500);
+        }, 3000);
+    </script>
+    
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xffffff);
+        
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 6);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0xffffff, 1);
+        document.body.appendChild(renderer.domElement);
+        
+        // Shadow
+        function createContactShadowTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128; canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+            gradient.addColorStop(0, 'rgba(0,0,0,0.6)');
+            gradient.addColorStop(0.3, 'rgba(0,0,0,0.25)');
+            gradient.addColorStop(0.6, 'rgba(0,0,0,0.1)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 128, 128);
+            return new THREE.CanvasTexture(canvas);
+        }
+        
+        const shadowTexture = createContactShadowTexture();
+        const shadowGeometry = new THREE.PlaneGeometry(3.5, 3.5);
+        const shadowMaterial = new THREE.MeshBasicMaterial({ map: shadowTexture, transparent: true, opacity: 0.9, depthWrite: false });
+        const contactShadow = new THREE.Mesh(shadowGeometry, shadowMaterial);
+        contactShadow.rotation.x = -Math.PI / 2;
+        contactShadow.position.set(2.6, -1.8, 0);
+        scene.add(contactShadow);
+        
+        // Signal Waves / Connection Ripple Shape
+        const particleCount = 3000;
+        
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const originalPositions = new Float32Array(particleCount * 3);
+        const ringIndices = new Int32Array(particleCount); // Track which ring each particle belongs to
+        
+        // Create concentric ripple rings emanating from center
+        const rings = 6;
+        const maxRadius = 1.3;
+        const phi = Math.PI * (3 - Math.sqrt(5));
+        
+        for (let i = 0; i < particleCount; i++) {
+            const t = i / particleCount;
+            
+            // Which ring this particle belongs to
+            const ringIndex = Math.floor(t * rings);
+            ringIndices[i] = ringIndex;
+            const ringProgress = (t * rings) - ringIndex;
+            
+            // Radius for this ring (expanding outward)
+            const baseRadius = 0.3 + (ringIndex / rings) * (maxRadius - 0.3);
+            
+            // Distribute particles around the ring
+            const angle = i * phi + ringIndex * 0.5;
+            
+            // Add some variation to ring radius
+            const radiusVariation = 0.08;
+            const radius = baseRadius + (Math.random() - 0.5) * radiusVariation;
+            
+            let x = Math.cos(angle) * radius;
+            let y = Math.sin(angle) * radius;
+            
+            // Slight z variation for 3D depth
+            let z = (Math.random() - 0.5) * 0.15;
+            
+            // Add jitter
+            const jitter = 0.02;
+            x += (Math.random() - 0.5) * jitter;
+            y += (Math.random() - 0.5) * jitter;
+            z += (Math.random() - 0.5) * jitter * 0.5;
+            
+            positions[i * 3] = x;
+            positions[i * 3 + 1] = y;
+            positions[i * 3 + 2] = z;
+            
+            originalPositions[i * 3] = x;
+            originalPositions[i * 3 + 1] = y;
+            originalPositions[i * 3 + 2] = z;
+        }
+        
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('ringIndex', new THREE.BufferAttribute(ringIndices, 1));
+        
+        const material = new THREE.PointsMaterial({
+            color: 0x000000,
+            size: 0.022,
+            transparent: true,
+            opacity: 0.75,
+            sizeAttenuation: true
+        });
+        
+        const particles = new THREE.Points(geometry, material);
+        
+        // Create connecting lines between particles in same ring (circular connections)
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.12 });
+        const lineGeometry = new THREE.BufferGeometry();
+        const linePositions = [];
+        const connectionDist = 0.25;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const ix = i * 3;
+            const x1 = positions[ix];
+            const y1 = positions[ix + 1];
+            const z1 = positions[ix + 2];
+            const r1 = Math.sqrt(x1*x1 + y1*y1);
+            
+            // Find nearby particles in similar radius (same ring area)
+            for (let j = i + 1; j < particleCount && linePositions.length < 15000; j++) {
+                const jx = j * 3;
+                const x2 = positions[jx];
+                const y2 = positions[jx + 1];
+                const z2 = positions[jx + 2];
+                const r2 = Math.sqrt(x2*x2 + y2*y2);
+                
+                // Only connect if in similar ring (similar radius)
+                const radiusDiff = Math.abs(r2 - r1);
+                if (radiusDiff > 0.15) continue;
+                
+                const dx = x2 - x1;
+                const dy = y2 - y1;
+                const dz = z2 - z1;
+                const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                
+                if (dist < connectionDist) {
+                    linePositions.push(x1, y1, z1, x2, y2, z2);
+                }
+            }
+        }
+        
+        lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+        const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+        
+        particles.position.x = 2.6;
+        lines.position.x = 2.6;
+        scene.add(particles);
+        scene.add(lines);
+        
+        // Ring rotation angles - alternating directions
+        const ringRotations = new Float32Array(rings);
+        const rotationSpeeds = new Float32Array(rings);
+        for (let r = 0; r < rings; r++) {
+            ringRotations[r] = 0;
+            // Even rings (0, 2, 4, 6) rotate clockwise, odd rings (1, 3, 5, 7) rotate counter-clockwise
+            rotationSpeeds[r] = r % 2 === 0 ? 0.003 : -0.003;
+        }
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        const clock = new THREE.Clock();
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = clock.getElapsedTime();
+            
+            // Update shadow animation
+            contactShadow.material.opacity = 0.8 + Math.sin(time * 0.5) * 0.05;
+            contactShadow.scale.setScalar(1 + Math.sin(time * 0.3) * 0.02);
+            
+            // Per-ring rotation - each ring rotates independently with alternating directions
+            const positions = geometry.attributes.position.array;
+            const ringIdxArray = geometry.attributes.ringIndex.array;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const ringIndex = ringIdxArray[i];
+                const ix = i * 3;
+                
+                const ox = originalPositions[ix];
+                const oy = originalPositions[ix + 1];
+                const oz = originalPositions[ix + 2];
+                
+                // Get current rotation angle for this ring
+                const angle = ringRotations[ringIndex];
+                
+                // Rotate around Z axis (in XY plane)
+                const cosA = Math.cos(angle);
+                const sinA = Math.sin(angle);
+                
+                positions[ix] = ox * cosA - oy * sinA;
+                positions[ix + 1] = ox * sinA + oy * cosA;
+                positions[ix + 2] = oz;
+            }
+            
+            // Update rotation angles for each ring
+            for (let r = 0; r < rings; r++) {
+                ringRotations[r] += rotationSpeeds[r];
+            }
+            
+            geometry.attributes.position.needsUpdate = true;
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+    </script>
+    
+    <script>
+        // Simple Loading Screen
+        const loadingScreen = document.getElementById('loading-screen');
+        const progressBar = document.getElementById('loading-progress-bar');
+        let progress = 0;
+        
+        function updateProgress() {
+            if (progress < 100) {
+                progress += Math.random() * 8 + 2;
+                if (progress > 100) progress = 100;
+                progressBar.style.width = progress + '%';
+                setTimeout(updateProgress, 30);
+            } else {
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                }, 200);
+            }
+        }
+        
+        window.addEventListener('load', () => {
+            updateProgress();
+        });
+    </script>
+</body>
+</html>

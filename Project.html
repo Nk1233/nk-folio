@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #ffffff;
+            overflow: hidden;
+            cursor: none;
+        }
+        
+        /* Simple Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+        
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        
+        .loading-text {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: clamp(16px, 3vw, 24px);
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            color: #000;
+            text-align: center;
+        }
+        
+        .loading-progress-container {
+            width: 120px;
+            height: 2px;
+            background: rgba(0, 0, 0, 0.1);
+            margin-top: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loading-progress-bar {
+            height: 100%;
+            background: #000;
+            width: 0%;
+            transition: width 0.05s linear;
+        }
+        
+        canvas {
+            display: block;
+        }
+        
+        /* Custom Cursor */
+        .custom-cursor {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 1.5px solid #000;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        border-width 0.3s ease,
+                        background 0.3s ease;
+        }
+        
+        .custom-cursor.hover-mode {
+            width: 8px;
+            height: 8px;
+            border-width: 0;
+            background: #000;
+        }
+        
+        /* Minimal UI Elements */
+        .ui-element {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            color: #000;
+            opacity: 0.55;
+            position: fixed;
+            pointer-events: none;
+            z-index: 20;
+            transition: opacity 0.3s ease;
+        }
+        
+        .ui-element:hover {
+            opacity: 0.8;
+        }
+        
+        /* Top Right Cluster */
+        .live-time {
+            top: 20px;
+            right: 20px;
+        }
+        
+        .date-display {
+            top: 38px;
+            right: 20px;
+            font-size: 10px;
+            opacity: 0.45;
+        }
+        
+        .fps-counter {
+            top: 54px;
+            right: 20px;
+            font-size: 9px;
+            opacity: 0.4;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Top Left - Time Greeting */
+        .time-greeting {
+            top: 20px;
+            left: 3%;
+            font-size: 10px;
+            opacity: 0.5;
+            text-transform: uppercase;
+        }
+        
+        /* Bottom Right - Session & Status */
+        .session-timer {
+            bottom: 20px;
+            right: 20px;
+            font-size: 10px;
+            opacity: 0.45;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .system-status {
+            bottom: 38px;
+            right: 20px;
+            font-size: 9px;
+            opacity: 0.4;
+        }
+        
+        /* Hero Text */
+        .hero-container {
+            position: fixed;
+            left: 14%;
+            top: 12%;
+            z-index: 10;
+            pointer-events: none;
+            max-width: 50vw;
+        }
+        
+        .hero-text {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: clamp(36px, 4.5vw, 72px);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #000;
+            line-height: 1.1;
+        }
+        
+        .hero-text .line {
+            display: block;
+        }
+        
+        .hero-text .letter {
+            display: inline-block;
+            transition: transform 0.3s ease-out;
+            will-change: transform;
+        }
+        
+        /* 3D Depth Effect */
+        .hero-text {
+            text-shadow: 
+                1px 1px 0 rgba(0,0,0,0.15),
+                2px 2px 0 rgba(0,0,0,0.12),
+                3px 3px 0 rgba(0,0,0,0.09),
+                4px 4px 0 rgba(0,0,0,0.06),
+                5px 5px 0 rgba(0,0,0,0.04),
+                6px 6px 0 rgba(0,0,0,0.02),
+                12px 24px 48px rgba(0,0,0,0.18);
+        }
+        
+        .hero-shadow {
+            position: absolute;
+            top: 8px;
+            left: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(36px, 4.5vw, 72px);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: transparent;
+            text-shadow: 0 30px 60px rgba(0,0,0,0.25);
+            line-height: 1.1;
+            z-index: -1;
+            opacity: 0.6;
+            will-change: transform, opacity;
+            filter: blur(3px);
+        }
+        
+        /* Ground shadow */
+        .ground-shadow {
+            position: fixed;
+            left: 12%;
+            bottom: 15%;
+            width: 300px;
+            height: 60px;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 40%, transparent 70%);
+            filter: blur(20px);
+            z-index: 5;
+            pointer-events: none;
+        }
+        
+        /* Depth Navigation */
+        .depth-nav {
+            position: fixed;
+            left: 3%;
+            top: 55%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 15;
+            pointer-events: none;
+        }
+        
+        .depth-nav .nav-item {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            display: block;
+            text-decoration: none;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #000;
+            cursor: none;
+            pointer-events: auto;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: left center;
+            position: relative;
+            padding-left: 0;
+        }
+        
+        .depth-nav .nav-item.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            transform: scaleX(0);
+            transform-origin: left center;
+            width: 100%;
+            height: 1px;
+            background: #000;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .depth-nav .nav-item.active:hover::after {
+            transform: scaleX(1);
+        }
+        
+        .depth-nav .nav-item.active {
+            font-size: 18px;
+            font-weight: 500;
+            opacity: 1;
+            filter: blur(0);
+            transform: translateX(0) scale(1);
+        }
+        
+        .depth-nav .nav-item.near {
+            font-size: 15px;
+            opacity: 0.6;
+            filter: blur(0.3px);
+            transform: translateX(-8px) scale(0.95);
+        }
+        
+        .depth-nav .nav-item.far {
+            font-size: 13px;
+            opacity: 0.35;
+            filter: blur(0.8px);
+            transform: translateX(-15px) scale(0.88);
+        }
+        
+        .depth-nav .nav-item.distant {
+            font-size: 11px;
+            opacity: 0.18;
+            filter: blur(1.5px);
+            transform: translateX(-22px) scale(0.78);
+        }
+        
+        /* Project Label */
+        .project-label {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #000;
+            opacity: 0.4;
+            margin-bottom: 8px;
+        }
+        
+        /* Image Frame with Floating Shadow */
+        .image-frame-container {
+            position: fixed;
+            right: 5%;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 460px;
+        }
+        
+        .image-frame {
+            width: 420px;
+            height: 260px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow:
+                0 4px 6px rgba(0,0,0,0.05),
+                0 10px 20px rgba(0,0,0,0.08),
+                0 20px 40px rgba(0,0,0,0.12),
+                0 40px 80px rgba(0,0,0,0.15);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .image-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .image-frame-shadow {
+            width: 360px;
+            height: 40px;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.1) 40%, transparent 70%);
+            filter: blur(15px);
+            margin-top: 15px;
+            opacity: 0.8;
+            animation: shadowBreathe 3s ease-in-out infinite;
+        }
+        
+        @keyframes shadowBreathe {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+        }
+        
+        /* Gallery Slider */
+        .gallery-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        
+        .gallery-slider {
+            display: flex;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 260px;
+        }
+        
+        .gallery-slide {
+            min-width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f8f8;
+        }
+        
+        .gallery-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .gallery-slide iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #000;
+        }
+        
+        .gallery-slide.video-slide {
+            background: #000;
+            position: relative;
+        }
+        
+        .gallery-slide.video-slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .gallery-nav {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            align-items: center;
+        }
+        
+        .gallery-dots {
+            display: flex;
+            gap: 8px;
+            flex-direction: row;
+        }
+        
+        .gallery-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.2);
+            cursor: none;
+            pointer-events: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .gallery-dot.active {
+            background: rgba(0,0,0,0.8);
+            transform: scale(1.2);
+        }
+        
+        .gallery-arrows {
+            display: flex;
+            gap: 12px;
+            margin-left: 16px;
+        }
+        
+        .gallery-arrow {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            color: #000;
+            opacity: 0.4;
+            cursor: none;
+            pointer-events: auto;
+            transition: opacity 0.3s ease;
+            user-select: none;
+        }
+        
+        .gallery-arrow:hover {
+            opacity: 0.8;
+        }
+        
+        .gallery-counter {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 10px;
+            letter-spacing: 0.05em;
+            color: #000;
+            opacity: 0.4;
+            margin-left: auto;
+        }
+        
+        /* Project Details Panel */
+        .project-details-container {
+            position: fixed;
+            left: 14%;
+            top: 30%;
+            width: 36%;
+            max-height: 52%;
+            overflow-y: auto;
+            z-index: 11;
+            padding-right: 20px;
+            pointer-events: auto;
+        }
+        
+        .project-details-container::-webkit-scrollbar {
+            width: 3px;
+        }
+        
+        .project-details-container::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 2px;
+        }
+        
+        .detail-section {
+            margin-bottom: 20px;
+        }
+        
+        .detail-label {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: 9px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #000;
+            opacity: 0.5;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        
+        .detail-content {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: 12px;
+            line-height: 1.7;
+            color: #000;
+            opacity: 0.85;
+        }
+        
+        .detail-content.tagline {
+            font-size: 14px;
+            font-style: italic;
+            opacity: 0.6;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        
+        .tools-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .tool-tag {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: 10px;
+            padding: 4px 10px;
+            background: rgba(0,0,0,0.04);
+            border-radius: 12px;
+            letter-spacing: 0.02em;
+        }
+        
+        .detail-meta {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: 11px;
+            color: #000;
+            opacity: 0.7;
+        }
+        
+        /* Project Navigation - Film Reel Style */
+        .project-nav-container {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 700px;
+            height: 50px;
+            z-index: 20;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .project-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            position: relative;
+            perspective: 800px;
+        }
+        
+        .project-nav .project-item {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #000;
+            cursor: none;
+            pointer-events: auto;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            position: absolute;
+            white-space: nowrap;
+            padding: 8px 16px;
+        }
+        
+        .project-nav .project-item.pos-0 {
+            opacity: 0.25;
+            transform: translateX(-280px) rotateY(25deg) scale(0.7);
+            filter: blur(1px);
+        }
+        
+        .project-nav .project-item.pos-1 {
+            opacity: 0.5;
+            transform: translateX(-160px) rotateY(15deg) scale(0.85);
+            filter: blur(0.5px);
+        }
+        
+        .project-nav .project-item.pos-2 {
+            opacity: 1;
+            transform: translateX(0) rotateY(0deg) scale(1.1);
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .project-nav .project-item.pos-2::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 2px;
+            transform: translateX(-50%) scaleX(1);
+            width: 60%;
+            height: 1px;
+            background: #000;
+        }
+        
+        .project-nav .project-item.pos-3 {
+            opacity: 0.5;
+            transform: translateX(160px) rotateY(-15deg) scale(0.85);
+            filter: blur(0.5px);
+        }
+        
+        .project-nav .project-item.pos-4 {
+            opacity: 0.25;
+            transform: translateX(280px) rotateY(-25deg) scale(0.7);
+            filter: blur(1px);
+        }
+        
+        .nav-hint {
+            position: fixed;
+            bottom: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: 9px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #000;
+            opacity: 0.3;
+            z-index: 19;
+        }
+        
+        .scroll-hint {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: 9px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #000;
+            opacity: 0.3;
+            margin-top: 16px;
+            font-style: italic;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            canvas {
+                display: none !important;
+            }
+            
+            .depth-nav {
+                left: 5%;
+                gap: 12px;
+            }
+            
+            .depth-nav .nav-item {
+                font-size: 12px;
+                letter-spacing: 0.1em;
+            }
+            
+            .hero-text {
+                font-size: clamp(32px, 12vw, 80px);
+            }
+            
+            .ui-element {
+                font-size: 9px;
+            }
+            
+            .live-time {
+                top: 12px;
+                right: 12px;
+            }
+            
+            .date-display {
+                top: 26px;
+                right: 12px;
+            }
+            
+            .fps-counter {
+                top: 40px;
+                right: 12px;
+            }
+            
+            .time-greeting {
+                top: 12px;
+                left: 5%;
+            }
+            
+            .session-timer,
+            .system-status {
+                display: none;
+            }
+        }
+        
+        /* Resume Link */
+        .resume-link {
+            position: fixed;
+            bottom: 20px;
+            left: 3%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #000;
+            text-decoration: none;
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+            z-index: 20;
+            cursor: none;
+        }
+        
+        .resume-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: #000;
+            transition: width 0.3s ease;
+        }
+        
+        .resume-link:hover {
+            opacity: 1;
+        }
+        
+        .resume-link:hover::after {
+            width: 100%;
+        }
+        
+        /* License Text */
+        .license-text {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            color: #000;
+            opacity: 0.4;
+            z-index: 20;
+            cursor: default;
+        }
+        
+        @media (max-width: 768px) {
+            .resume-link {
+                font-size: 10px;
+                bottom: 15px;
+            }
+            
+            .license-text {
+                font-size: 8px;
+                bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-text">Loading...</div>
+        <div class="loading-progress-container">
+            <div class="loading-progress-bar" id="loading-progress-bar"></div>
+        </div>
+    </div>
+    
+    <!-- Custom Cursor -->
+    <div class="custom-cursor" id="custom-cursor"></div>
+    
+    <!-- Minimal UI Elements -->
+    <div class="ui-element live-time" id="live-time"></div>
+    <div class="ui-element date-display" id="date-display"></div>
+    <div class="ui-element fps-counter" id="fps-counter">FPS: --</div>
+    <div class="ui-element time-greeting" id="time-greeting"></div>
+    <div class="ui-element session-timer" id="session-timer">Session: 00:00</div>
+    <div class="ui-element system-status" id="system-status">System Online</div>
+    <a href="Resume/Nikhil%20Mishra%20%E2%80%93%20Data%20Analyst%20Resume.pdf" class="resume-link hover-target" target="_blank" rel="noopener">Resume</a>
+    
+    <div class="license-text">Made By Nikhil With ❤️ and lots of 🍵</div>
+    
+    <!-- Ground Shadow -->
+    <div class="ground-shadow"></div>
+    
+    <!-- Depth Navigation -->
+    <div class="depth-nav" id="depth-nav">
+        <a href="index.html" class="nav-item" data-index="0">Home</a>
+        <a href="about.html" class="nav-item" data-index="1">About</a>
+        <a href="skills.html" class="nav-item" data-index="2">Skills</a>
+        <a href="contact.html" class="nav-item active" data-index="3">Contact</a>
+    </div>
+    
+    <!-- Hero Text -->
+    <div class="hero-container">
+        <div class="project-label">Selected Work</div>
+        <div class="hero-shadow" id="hero-shadow">
+            <div class="line">Service Ops</div>
+        </div>
+        <div class="hero-text" id="hero-text">
+            <div class="line" id="hero-title-line">
+                <span class="letter">S</span><span class="letter">e</span><span class="letter">r</span><span class="letter">v</span><span class="letter">i</span><span class="letter">c</span><span class="letter">e</span><span class="letter"> </span><span class="letter">O</span><span class="letter">p</span><span class="letter">s</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Project Details -->
+    <div class="project-details-container" id="project-details">
+        <div class="detail-content tagline" id="project-tagline">Cost and performance analytics for service operations</div>
+        
+        <div class="detail-section">
+            <div class="detail-label">The Problem</div>
+            <div class="detail-content" id="project-problem">Service teams lacked visibility into cost drivers, technician performance, and order efficiency. Data was fragmented across systems, making it difficult to track losses, optimize workloads, and improve operational decisions in real time.</div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="detail-label">Impact</div>
+            <div class="detail-content" id="project-impact">Identified consistent net losses and high-cost services, improved workload distribution across technicians, and enabled faster decision-making with centralized insights.</div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="detail-label">My Role</div>
+            <div class="detail-content detail-meta" id="project-role">Data Analyst & Dashboard Developer</div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="detail-label">Duration</div>
+            <div class="detail-content detail-meta" id="project-duration">6 Hours</div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="detail-label">Tools & Skills</div>
+            <div class="tools-grid" id="project-tools">
+                <span class="tool-tag">Power BI</span>
+                <span class="tool-tag">DAX</span>
+                <span class="tool-tag">Power Query</span>
+                <span class="tool-tag">Excel</span>
+            </div>
+        </div>
+        
+        <div class="scroll-hint">Hover + Scroll or Shift + ↑↓ to navigate</div>
+    </div>
+    
+    <!-- Image Gallery with Floating Shadow -->
+    <div class="image-frame-container">
+        <div class="image-frame">
+            <div class="gallery-container">
+                <div class="gallery-slider" id="gallery-slider">
+                    <!-- Dynamic image slides will be generated here -->
+                    <div class="gallery-slide video-slide" id="video-slide">
+                        <iframe id="project-video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="gallery-nav">
+            <div class="gallery-dots" id="gallery-dots"></div>
+            <div class="gallery-arrows">
+                <span class="gallery-arrow" id="gallery-prev">←</span>
+                <span class="gallery-arrow" id="gallery-next">→</span>
+            </div>
+            <div class="gallery-counter" id="gallery-counter">1 / 1</div>
+        </div>
+        <div class="image-frame-shadow"></div>
+    </div>
+    
+    <!-- Project Navigation -->
+    <div class="project-nav-container">
+        <div class="project-nav" id="project-nav">
+            <div class="project-item" data-index="0">Service Ops</div>
+            <div class="project-item" data-index="1">Ops Tracker</div>
+            <div class="project-item" data-index="2">Sales Pulse</div>
+            <div class="project-item" data-index="3">Sales Insights</div>
+            <div class="project-item" data-index="4">Workforce</div>
+        </div>
+    </div>
+    <div class="nav-hint">← Use Arrow Keys →</div>
+    
+    <script src="project-data.js"></script>
+    <script>
+        // Custom Cursor Logic
+        const customCursor = document.getElementById('custom-cursor');
+        let cursorX = 0;
+        let cursorY = 0;
+        let isHoveringNav = false;
+        
+        document.addEventListener('mousemove', (e) => {
+            cursorX = e.clientX;
+            cursorY = e.clientY;
+            customCursor.style.left = cursorX + 'px';
+            customCursor.style.top = cursorY + 'px';
+        });
+        
+        // Hero Text Physics Distortion
+        const heroText = document.getElementById('hero-text');
+        const heroShadow = document.getElementById('hero-shadow');
+        let letters = heroText.querySelectorAll('.letter');
+        const letterData = [];
+        
+        function initLetterData() {
+            letterData.length = 0;
+            letters.forEach((letter, i) => {
+                const rect = letter.getBoundingClientRect();
+                letterData.push({
+                    el: letter,
+                    x: rect.left + rect.width / 2,
+                    y: rect.top + rect.height / 2,
+                    baseX: 0,
+                    baseY: 0,
+                    currentX: 0,
+                    currentY: 0
+                });
+            });
+        }
+        initLetterData();
+        
+        let floatPhase = 0;
+        
+        function updateHeroText() {
+            floatPhase += 0.02;
+            const containerRect = heroText.getBoundingClientRect();
+            const textCenterX = containerRect.left + containerRect.width / 2;
+            const textCenterY = containerRect.top + containerRect.height / 2;
+            const dx = cursorX - textCenterX;
+            const dy = cursorY - textCenterY;
+            const cursorDist = Math.sqrt(dx * dx + dy * dy);
+            const maxDist = 300;
+            const globalInfluence = Math.max(0, 1 - cursorDist / maxDist);
+            
+            const shadowX = dx * 0.02 * globalInfluence;
+            const shadowScale = 1 + globalInfluence * 0.1;
+            const shadowOpacity = 0.6 + globalInfluence * 0.2;
+            heroShadow.style.transform = `translate(${shadowX}px, 0) scale(${shadowScale})`;
+            heroShadow.style.opacity = shadowOpacity;
+            
+            letters.forEach((letter, i) => {
+                const data = letterData[i];
+                const rect = letter.getBoundingClientRect();
+                const letterX = rect.left + rect.width / 2;
+                const letterY = rect.top + rect.height / 2;
+                const ldx = cursorX - letterX;
+                const ldy = cursorY - letterY;
+                const ldist = Math.sqrt(ldx * ldx + ldy * ldy);
+                const influence = Math.max(0, 1 - ldist / 200);
+                const maxOffset = 15;
+                const angle = Math.atan2(ldy, ldx);
+                const pushX = -Math.cos(angle) * maxOffset * influence;
+                const pushY = -Math.sin(angle) * maxOffset * influence;
+                const floatY = Math.sin(floatPhase + i * 0.3) * 3;
+                const targetX = pushX;
+                const targetY = pushY + floatY;
+                data.currentX += (targetX - data.currentX) * 0.1;
+                data.currentY += (targetY - data.currentY) * 0.1;
+                letter.style.transform = `translate(${data.currentX.toFixed(2)}px, ${data.currentY.toFixed(2)}px)`;
+            });
+            
+            requestAnimationFrame(updateHeroText);
+        }
+        
+        window.addEventListener('resize', () => {
+            letters = heroText.querySelectorAll('.letter');
+            initLetterData();
+        });
+        
+        updateHeroText();
+        
+        // Depth Navigation System
+        const navItems = document.querySelectorAll('.depth-nav .nav-item');
+        let activeIndex = 0;
+        
+        function updateNavDepth() {
+            navItems.forEach((item, index) => {
+                const diff = Math.abs(index - activeIndex);
+                item.classList.remove('active', 'near', 'far', 'distant');
+                if (diff === 0) item.classList.add('active');
+                else if (diff === 1) item.classList.add('near');
+                else if (diff === 2) item.classList.add('far');
+                else item.classList.add('distant');
+            });
+        }
+        
+        document.addEventListener('mousemove', (e) => {
+            const xPercent = (e.clientX / window.innerWidth - 0.5) * 2;
+            const yPercent = (e.clientY / window.innerHeight - 0.5) * 2;
+            navItems.forEach((item, index) => {
+                const diff = index - activeIndex;
+                const depth = Math.abs(diff) + 1;
+                const parallaxX = xPercent * depth * 3;
+                const parallaxY = yPercent * depth * 2;
+                item.style.setProperty('--parallax-x', `${parallaxX}px`);
+                item.style.setProperty('--parallax-y', `${parallaxY}px`);
+            });
+        });
+        
+        // Page URLs for navigation
+        const pageUrls = ['index.html', 'about.html', 'skills.html', 'contact.html'];
+        
+        navItems.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                if (index !== targetIndex) {
+                    window.location.href = pageUrls[index];
+                }
+            });
+        });
+        
+        let targetIndex = 2; // Projects is active
+        let currentIndex = 2;
+        let isAnimating = false;
+        let lastScrollTime = 0;
+        const scrollCooldown = 400;
+        
+        function lerpIndex() {
+            const diff = targetIndex - currentIndex;
+            if (Math.abs(diff) > 0.001) {
+                currentIndex += diff * 0.15;
+                activeIndex = Math.round(currentIndex);
+                updateNavDepth();
+                requestAnimationFrame(lerpIndex);
+            } else {
+                currentIndex = targetIndex;
+                activeIndex = Math.round(currentIndex);
+                updateNavDepth();
+                isAnimating = false;
+            }
+        }
+        
+        document.addEventListener('wheel', (e) => {
+            if (isHoveringDetails) return; // Let details scroll handler take over
+            e.preventDefault();
+            const now = Date.now();
+            if (now - lastScrollTime < scrollCooldown) return;
+            const direction = e.deltaY > 0 ? 1 : -1;
+            const newTarget = Math.max(0, Math.min(navItems.length - 1, targetIndex + direction));
+            if (newTarget !== targetIndex) {
+                targetIndex = newTarget;
+                lastScrollTime = now;
+                if (!isAnimating) {
+                    isAnimating = true;
+                    lerpIndex();
+                }
+            }
+        }, { passive: false });
+        
+        updateNavDepth();
+        
+        navItems.forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                if (item.classList.contains('active')) {
+                    isHoveringNav = true;
+                    customCursor.classList.add('hover-mode');
+                }
+            });
+            item.addEventListener('mouseleave', () => {
+                isHoveringNav = false;
+                customCursor.classList.remove('hover-mode');
+            });
+        });
+        
+        // Track hover-target elements (resume link, etc.)
+        const hoverTargets = document.querySelectorAll('.hover-target');
+        hoverTargets.forEach(target => {
+            target.addEventListener('mouseenter', () => {
+                customCursor.classList.add('hover-mode');
+            });
+            target.addEventListener('mouseleave', () => {
+                customCursor.classList.remove('hover-mode');
+            });
+        });
+        
+        // Minimal UI Elements Logic
+        const liveTimeEl = document.getElementById('live-time');
+        const dateDisplayEl = document.getElementById('date-display');
+        const timeGreetingEl = document.getElementById('time-greeting');
+        
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            liveTimeEl.textContent = `${hours}:${minutes} IST`;
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const day = now.getDate();
+            const month = months[now.getMonth()];
+            const year = now.getFullYear();
+            dateDisplayEl.textContent = `${day} ${month} ${year}`;
+            const hour = now.getHours();
+            let greeting;
+            if (hour < 12) greeting = 'Morning';
+            else if (hour < 17) greeting = 'Afternoon';
+            else greeting = 'Evening';
+            timeGreetingEl.textContent = `Good ${greeting}`;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        const sessionTimerEl = document.getElementById('session-timer');
+        const sessionStart = Date.now();
+        function updateSessionTimer() {
+            const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+            const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
+            const seconds = String(elapsed % 60).padStart(2, '0');
+            sessionTimerEl.textContent = `Session: ${minutes}:${seconds}`;
+        }
+        setInterval(updateSessionTimer, 1000);
+        
+        const fpsEl = document.getElementById('fps-counter');
+        let lastTime = performance.now();
+        let frameCount = 0;
+        function updateFPS() {
+            const now = performance.now();
+            frameCount++;
+            if (now - lastTime >= 1000) {
+                fpsEl.textContent = `FPS: ${frameCount}`;
+                frameCount = 0;
+                lastTime = now;
+            }
+            requestAnimationFrame(updateFPS);
+        }
+        updateFPS();
+        
+        const systemStatusEl = document.getElementById('system-status');
+        setInterval(() => {
+            systemStatusEl.style.opacity = '0.55';
+            setTimeout(() => {
+                systemStatusEl.style.opacity = '0.4';
+            }, 500);
+        }, 3000);
+        
+        // Project Navigation with Arrow Keys - Film Reel Effect
+        const projectItems = document.querySelectorAll('.project-nav .project-item');
+        const projectImage = document.getElementById('project-image');
+        const projectTagline = document.getElementById('project-tagline');
+        const projectProblem = document.getElementById('project-problem');
+        const projectImpact = document.getElementById('project-impact');
+        const projectRole = document.getElementById('project-role');
+        const projectDuration = document.getElementById('project-duration');
+        const projectTools = document.getElementById('project-tools');
+        const heroTitleLine = document.getElementById('hero-title-line');
+        const projectDetails = document.getElementById('project-details');
+        let isHoveringDetails = false;
+        
+        let currentProject = 0;
+        const totalProjects = projectItems.length;
+        const halfVisible = 2;
+        
+        function updateToolsGrid(tools) {
+            projectTools.innerHTML = '';
+            tools.forEach(tool => {
+                const tag = document.createElement('span');
+                tag.className = 'tool-tag';
+                tag.textContent = tool;
+                projectTools.appendChild(tag);
+            });
+        }
+        
+        function updateHeroTitle(title) {
+            heroTitleLine.innerHTML = '';
+            heroShadow.querySelector('.line').textContent = title;
+            const words = title.split(' ');
+            words.forEach((word, wordIndex) => {
+                for (let i = 0; i < word.length; i++) {
+                    const span = document.createElement('span');
+                    span.className = 'letter';
+                    span.textContent = word[i];
+                    heroTitleLine.appendChild(span);
+                }
+                if (wordIndex < words.length - 1) {
+                    const space = document.createElement('span');
+                    space.className = 'letter';
+                    space.innerHTML = '&nbsp;';
+                    heroTitleLine.appendChild(space);
+                }
+            });
+            letters = heroText.querySelectorAll('.letter');
+            initLetterData();
+        }
+        
+        function updateProjectNav() {
+            projectItems.forEach(item => {
+                item.classList.remove('pos-0', 'pos-1', 'pos-2', 'pos-3', 'pos-4');
+            });
+            for (let i = -halfVisible; i <= halfVisible; i++) {
+                const index = (currentProject + i + totalProjects) % totalProjects;
+                const position = i + halfVisible;
+                projectItems[index].classList.add(`pos-${position}`);
+            }
+            const data = projectsData[currentProject];
+            if (data) {
+                projectTagline.textContent = data.tagline;
+                projectProblem.textContent = data.problem;
+                projectImpact.textContent = data.impact;
+                projectRole.textContent = data.role;
+                projectDuration.textContent = data.duration;
+                updateToolsGrid(data.tools);
+                updateHeroTitle(data.title);
+            }
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                currentProject = (currentProject - 1 + totalProjects) % totalProjects;
+                updateProjectNav();
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                currentProject = (currentProject + 1) % totalProjects;
+                updateProjectNav();
+            }
+        });
+        
+        projectItems.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                let diff = index - currentProject;
+                if (diff > totalProjects / 2) diff -= totalProjects;
+                if (diff < -totalProjects / 2) diff += totalProjects;
+                if (Math.abs(diff) <= halfVisible) {
+                    currentProject = index;
+                    updateProjectNav();
+                }
+            });
+        });
+        
+        // Project Details Scroll - Wheel on hover and Shift+Arrow keys
+        const scrollAmount = 60;
+        
+        projectDetails.addEventListener('mouseenter', () => {
+            isHoveringDetails = true;
+        });
+        
+        projectDetails.addEventListener('mouseleave', () => {
+            isHoveringDetails = false;
+        });
+        
+        // Wheel scroll when hovering details
+        document.addEventListener('wheel', (e) => {
+            if (isHoveringDetails) {
+                e.preventDefault();
+                projectDetails.scrollTop += e.deltaY;
+            }
+        }, { passive: false });
+        
+        // Shift+Arrow keys for details scroll
+        document.addEventListener('keydown', (e) => {
+            if (e.shiftKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+                e.preventDefault();
+                if (e.key === 'ArrowUp') {
+                    projectDetails.scrollTop -= scrollAmount;
+                } else {
+                    projectDetails.scrollTop += scrollAmount;
+                }
+            }
+        });
+        
+        // Gallery Slider Functionality - Dynamic based on image count
+        const gallerySlider = document.getElementById('gallery-slider');
+        const galleryDotsContainer = document.getElementById('gallery-dots');
+        const galleryPrev = document.getElementById('gallery-prev');
+        const galleryNext = document.getElementById('gallery-next');
+        const galleryCounter = document.getElementById('gallery-counter');
+        const projectVideo = document.getElementById('project-video');
+        let currentSlide = 0;
+        let totalSlides = 1;
+        let currentDots = [];
+        
+        function createDots(count) {
+            galleryDotsContainer.innerHTML = '';
+            currentDots = [];
+            for (let i = 0; i < count; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'gallery-dot' + (i === 0 ? ' active' : '');
+                dot.dataset.slide = i;
+                dot.addEventListener('click', () => goToSlide(i));
+                dot.addEventListener('mouseenter', () => customCursor.classList.add('hover-mode'));
+                dot.addEventListener('mouseleave', () => customCursor.classList.remove('hover-mode'));
+                galleryDotsContainer.appendChild(dot);
+                currentDots.push(dot);
+            }
+        }
+        
+        function updateGallery() {
+            gallerySlider.style.transform = `translateX(-${currentSlide * 100}%)`;
+            currentDots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+            galleryCounter.textContent = `${currentSlide + 1} / ${totalSlides}`;
+        }
+        
+        function goToSlide(slide) {
+            currentSlide = slide;
+            updateGallery();
+        }
+        
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateGallery();
+        }
+        
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateGallery();
+        }
+        
+        galleryPrev.addEventListener('click', prevSlide);
+        galleryNext.addEventListener('click', nextSlide);
+        
+        // Gallery arrows cursor hover effect
+        [galleryPrev, galleryNext].forEach(arrow => {
+            arrow.addEventListener('mouseenter', () => customCursor.classList.add('hover-mode'));
+            arrow.addEventListener('mouseleave', () => customCursor.classList.remove('hover-mode'));
+        });
+        
+        // Update gallery content when project changes
+        function updateGalleryContent(projectIndex) {
+            const data = projectsData[projectIndex];
+            if (!data) return;
+            
+            // Clear existing image slides (keep video slide)
+            const videoSlide = document.getElementById('video-slide');
+            gallerySlider.innerHTML = '';
+            
+            // Add image slides based on number of images
+            const imageCount = data.images ? data.images.length : 0;
+            for (let i = 0; i < imageCount; i++) {
+                const slide = document.createElement('div');
+                slide.className = 'gallery-slide';
+                const img = document.createElement('img');
+                img.src = data.images[i];
+                img.alt = `Project Image ${i + 1}`;
+                slide.appendChild(img);
+                gallerySlider.appendChild(slide);
+            }
+            
+            // Handle video slide
+            if (data.video && data.video.trim() !== '') {
+                projectVideo.src = data.video;
+                videoSlide.style.display = 'flex';
+                gallerySlider.appendChild(videoSlide);
+                totalSlides = imageCount + 1;
+            } else {
+                projectVideo.src = '';
+                totalSlides = imageCount;
+            }
+            
+            // Create dots for total slides
+            createDots(totalSlides);
+            
+            // Reset to first slide
+            goToSlide(0);
+        }
+        
+        // Override updateProjectNav to include gallery update
+        const originalUpdateProjectNav = updateProjectNav;
+        updateProjectNav = function() {
+            // Remove all position classes
+            projectItems.forEach(item => {
+                item.classList.remove('pos-0', 'pos-1', 'pos-2', 'pos-3', 'pos-4');
+            });
+            
+            // Calculate visible indices with wrap-around
+            for (let i = -halfVisible; i <= halfVisible; i++) {
+                const index = (currentProject + i + totalProjects) % totalProjects;
+                const position = i + halfVisible;
+                projectItems[index].classList.add(`pos-${position}`);
+            }
+            
+            const data = projectsData[currentProject];
+            if (data) {
+                projectTagline.textContent = data.tagline;
+                projectProblem.textContent = data.problem;
+                projectImpact.textContent = data.impact;
+                projectRole.textContent = data.role;
+                projectDuration.textContent = data.duration;
+                updateToolsGrid(data.tools);
+                updateHeroTitle(data.title);
+                updateGalleryContent(currentProject);
+            }
+        };
+        
+        // Initialize gallery content
+        updateGalleryContent(0);
+    </script>
+    
+    <script>
+        // Simple Loading Screen
+        const loadingScreen = document.getElementById('loading-screen');
+        const progressBar = document.getElementById('loading-progress-bar');
+        let progress = 0;
+        
+        function updateProgress() {
+            if (progress < 100) {
+                progress += Math.random() * 8 + 2;
+                if (progress > 100) progress = 100;
+                progressBar.style.width = progress + '%';
+                setTimeout(updateProgress, 30);
+            } else {
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                }, 200);
+            }
+        }
+        
+        window.addEventListener('load', () => {
+            updateProgress();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skills</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #ffffff;
+            overflow: hidden;
+            cursor: none;
+        }
+        
+        /* Simple Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+        
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        
+        .loading-text {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: clamp(16px, 3vw, 24px);
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            color: #000;
+            text-align: center;
+        }
+        
+        .loading-progress-container {
+            width: 120px;
+            height: 2px;
+            background: rgba(0, 0, 0, 0.1);
+            margin-top: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loading-progress-bar {
+            height: 100%;
+            background: #000;
+            width: 0%;
+            transition: width 0.05s linear;
+        }
+        
+        canvas {
+            display: block;
+        }
+        
+        /* Custom Cursor */
+        /* Custom Cursor - Circle to Dot */
+        .custom-cursor {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 1.5px solid #000;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        border-width 0.3s ease,
+                        background 0.3s ease;
+        }
+        
+        .custom-cursor.hover-mode {
+            width: 8px;
+            height: 8px;
+            border-width: 0;
+            background: #000;
+        }
+        
+        /* Minimal UI Elements */
+        .ui-element {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            color: #000;
+            opacity: 0.55;
+            position: fixed;
+            pointer-events: none;
+            z-index: 20;
+            transition: opacity 0.3s ease;
+        }
+        
+        .ui-element:hover {
+            opacity: 0.8;
+        }
+        
+        /* Top Right Cluster */
+        .live-time {
+            top: 20px;
+            right: 20px;
+        }
+        
+        .date-display {
+            top: 38px;
+            right: 20px;
+            font-size: 10px;
+            opacity: 0.45;
+        }
+        
+        .fps-counter {
+            top: 54px;
+            right: 20px;
+            font-size: 9px;
+            opacity: 0.4;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Top Left - Time Greeting */
+        .time-greeting {
+            top: 20px;
+            left: 3%;
+            font-size: 10px;
+            opacity: 0.5;
+            text-transform: uppercase;
+        }
+        
+        /* Bottom Right - Session & Status */
+        .session-timer {
+            bottom: 20px;
+            right: 20px;
+            font-size: 10px;
+            opacity: 0.45;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .system-status {
+            bottom: 38px;
+            right: 20px;
+            font-size: 9px;
+            opacity: 0.4;
+        }
+        
+        /* Hero Text */
+        .hero-container {
+            position: fixed;
+            left: 10%;
+            top: 12%;
+            z-index: 10;
+            pointer-events: none;
+            max-width: 50vw;
+        }
+        
+        .hero-text {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: clamp(56px, 7vw, 120px);
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: #000;
+            line-height: 1.1;
+        }
+        
+        .hero-text .line {
+            display: block;
+        }
+        
+        .hero-text .letter {
+            display: inline-block;
+            transition: transform 0.3s ease-out;
+            will-change: transform;
+        }
+        
+        /* Hero text line styling */
+        .hero-text .name-line {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(56px, 7vw, 120px);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.2em;
+        }
+        
+        .hero-text .role-line {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(14px, 1.8vw, 20px);
+            font-weight: 600;
+            opacity: 0.9;
+            margin-bottom: 1.2em;
+            margin-left: 2%;
+            letter-spacing: 0.02em;
+            line-height: 1.3;
+            white-space: nowrap;
+            text-shadow: none;
+        }
+        
+        .hero-text .para {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(12px, 1.3vw, 16px);
+            font-weight: 400;
+            opacity: 0.8;
+            margin-bottom: 0.6em;
+            margin-left: 2%;
+            max-width: 50ch;
+            line-height: 1.4;
+            text-shadow: none;
+        }
+        
+        .hero-text .para-2 {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(11px, 1vw, 13px);
+            font-weight: 500;
+            opacity: 0.85;
+            color: #000;
+            letter-spacing: 0.02em;
+            margin: 1.2em 0 1em 2%;
+            line-height: 2;
+        }
+        
+        .hero-text .para-2 .skill-item {
+            display: inline-block;
+            margin: 0 0.3em 0.4em 0;
+            padding: 0.2em 0.6em;
+            background: rgba(0, 0, 0, 0.06);
+            border-radius: 3px;
+            font-size: 0.95em;
+        }
+        
+        .hero-text .para-3 {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(12px, 1.3vw, 16px);
+            font-weight: 400;
+            opacity: 0.8;
+            font-style: italic;
+        }
+        
+        .hero-text .status-line {
+            font-family: 'Courier New', 'Monaco', monospace;
+            font-size: clamp(11px, 1.1vw, 14px);
+            font-weight: 500;
+            opacity: 0.7;
+            margin-top: 1em;
+            margin-left: 2%;
+            letter-spacing: 0.08em;
+            text-shadow: none;
+        }
+        
+        .hero-text .dots {
+            opacity: 0.6;
+        }
+        
+        .hero-text .blink-dot {
+            opacity: 1;
+            animation: blink 1s ease-in-out infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .hero-text .role-line {
+            text-shadow: none;
+        }
+        
+        /* 3D Depth Effect */
+        .hero-text {
+            text-shadow: 
+                1px 1px 0 rgba(0,0,0,0.15),
+                2px 2px 0 rgba(0,0,0,0.12),
+                3px 3px 0 rgba(0,0,0,0.09),
+                4px 4px 0 rgba(0,0,0,0.06),
+                5px 5px 0 rgba(0,0,0,0.04),
+                6px 6px 0 rgba(0,0,0,0.02),
+                12px 24px 48px rgba(0,0,0,0.18);
+        }
+        
+        .hero-shadow {
+            position: absolute;
+            top: 12px;
+            left: 8px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: clamp(56px, 7vw, 120px);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: transparent;
+            text-shadow: 0 30px 60px rgba(0,0,0,0.25);
+            line-height: 1;
+            z-index: -1;
+            opacity: 0.6;
+            will-change: transform, opacity;
+            filter: blur(3px);
+        }
+        
+        /* Ground shadow */
+        .ground-shadow {
+            position: fixed;
+            left: 12%;
+            bottom: 15%;
+            width: 300px;
+            height: 60px;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 40%, transparent 70%);
+            filter: blur(20px);
+            z-index: 5;
+            pointer-events: none;
+        }
+        
+        /* Depth Navigation */
+        .depth-nav {
+            position: fixed;
+            left: 3%;
+            top: 55%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 15;
+            pointer-events: none;
+        }
+        
+        .depth-nav .nav-item {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            display: block;
+            text-decoration: none;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #000;
+            cursor: none;
+            pointer-events: auto;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: left center;
+            position: relative;
+            padding-left: 0;
+        }
+        
+        /* Hover line effect - only on active item */
+        .depth-nav .nav-item.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            transform: scaleX(0);
+            transform-origin: left center;
+            width: 100%;
+            height: 1px;
+            background: #000;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .depth-nav .nav-item.active:hover::after {
+            transform: scaleX(1);
+        }
+        
+        /* Depth states */
+        .depth-nav .nav-item.active {
+            font-size: 18px;
+            font-weight: 500;
+            opacity: 1;
+            filter: blur(0);
+            transform: translateX(0) scale(1);
+        }
+        
+        .depth-nav .nav-item.near {
+            font-size: 15px;
+            opacity: 0.6;
+            filter: blur(0.3px);
+            transform: translateX(-8px) scale(0.95);
+        }
+        
+        .depth-nav .nav-item.far {
+            font-size: 13px;
+            opacity: 0.35;
+            filter: blur(0.8px);
+            transform: translateX(-15px) scale(0.88);
+        }
+        
+        .depth-nav .nav-item.distant {
+            font-size: 11px;
+            opacity: 0.18;
+            filter: blur(1.5px);
+            transform: translateX(-22px) scale(0.78);
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            canvas {
+                display: none !important;
+            }
+            
+            .depth-nav {
+                left: 5%;
+                gap: 12px;
+            }
+            
+            .depth-nav .nav-item {
+                font-size: 12px;
+                letter-spacing: 0.1em;
+            }
+            
+            .hero-text {
+                font-size: clamp(32px, 12vw, 80px);
+            }
+            
+            .ui-element {
+                font-size: 9px;
+            }
+            
+            .live-time {
+                top: 12px;
+                right: 12px;
+            }
+            
+            .date-display {
+                top: 26px;
+                right: 12px;
+            }
+            
+            .fps-counter {
+                top: 40px;
+                right: 12px;
+            }
+            
+            .time-greeting {
+                top: 12px;
+                left: 5%;
+            }
+            
+            .session-timer,
+            .system-status {
+                display: none;
+            }
+        }
+        
+        /* Resume Link */
+        .resume-link {
+            position: fixed;
+            bottom: 20px;
+            left: 3%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #000;
+            text-decoration: none;
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+            z-index: 20;
+            cursor: none;
+        }
+        
+        .resume-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: #000;
+            transition: width 0.3s ease;
+        }
+        
+        .resume-link:hover {
+            opacity: 1;
+        }
+        
+        .resume-link:hover::after {
+            width: 100%;
+        }
+        
+        /* License Text */
+        .license-text {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            color: #000;
+            opacity: 0.4;
+            z-index: 20;
+            cursor: default;
+        }
+        
+        @media (max-width: 768px) {
+            .resume-link {
+                font-size: 10px;
+                bottom: 15px;
+            }
+            
+            .license-text {
+                font-size: 8px;
+                bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-text">Loading...</div>
+        <div class="loading-progress-container">
+            <div class="loading-progress-bar" id="loading-progress-bar"></div>
+        </div>
+    </div>
+    
+    <!-- Custom Cursor -->
+    <div class="custom-cursor" id="custom-cursor"></div>
+    
+    <!-- Minimal UI Elements -->
+    <div class="ui-element live-time" id="live-time"></div>
+    <div class="ui-element date-display" id="date-display"></div>
+    <div class="ui-element fps-counter" id="fps-counter">FPS: --</div>
+    <div class="ui-element time-greeting" id="time-greeting"></div>
+    <div class="ui-element session-timer" id="session-timer">Session: 00:00</div>
+    <div class="ui-element system-status" id="system-status">System Online</div>
+    <a href="Resume/Nikhil%20Mishra%20%E2%80%93%20Data%20Analyst%20Resume.pdf" class="resume-link hover-target" target="_blank" rel="noopener">Resume</a>
+    
+    <div class="license-text">Made By Nikhil With ❤️ and lots of 🍵</div>
+    
+    <!-- Ground Shadow -->
+    <div class="ground-shadow"></div>
+    
+    <!-- Depth Navigation -->
+    <div class="depth-nav" id="depth-nav">
+        <a href="index.html" class="nav-item" data-index="0">Home</a>
+        <a href="about.html" class="nav-item" data-index="1">About</a>
+        <a href="Project.html" class="nav-item" data-index="2">Project</a>
+        <a href="contact.html" class="nav-item active" data-index="3">Contact</a>
+    </div>
+    
+    <!-- Hero Text -->
+    <div class="hero-container">
+        <div class="hero-shadow">
+            <div>Skills</div>
+        </div>
+        <div class="hero-text" id="hero-text">
+            <div class="line name-line">
+                <span class="letter">S</span><span class="letter">k</span><span class="letter">i</span><span class="letter">l</span><span class="letter">l</span><span class="letter">s</span>
+            </div>
+            <div class="line role-line">Technical Skills & Capabilities</div>
+            <p class="para para-1">I build and apply data-driven solutions through hands-on projects and continuous learning. My focus is on extracting meaningful insights, ensuring data accuracy, and creating systems that support real-world decision-making.</p>
+            <p class="para para-2">
+                <span class="skill-item">Python</span>
+                <span class="skill-item">SQL</span>
+                <span class="skill-item">Data Analysis</span>
+                <span class="skill-item">Data Visualization</span>
+                <span class="skill-item">Statistical Analysis</span>
+                <span class="skill-item">Pandas</span>
+                <span class="skill-item">NumPy</span>
+                <span class="skill-item">Scikit-learn</span>
+                <span class="skill-item">Power BI</span>
+                <span class="skill-item">Matplotlib</span>
+                <span class="skill-item">Seaborn</span>
+                <span class="skill-item">Jupyter Notebook</span>
+                <span class="skill-item">HTML</span>
+                <span class="skill-item">CSS</span>
+            </p>
+            <p class="para para-3">From data cleaning and exploration to predictive modeling and dashboard development—focused on delivering clarity through data.</p>
+            <div class="line status-line">Level: Intermediate — Actively Advancing<span class="dots">...</span><span class="blink-dot">.</span></div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        // Custom Cursor Logic - Circle to Dot
+        const customCursor = document.getElementById('custom-cursor');
+        
+        let cursorX = 0;
+        let cursorY = 0;
+        let isHoveringNav = false;
+        
+        document.addEventListener('mousemove', (e) => {
+            cursorX = e.clientX;
+            cursorY = e.clientY;
+            customCursor.style.left = cursorX + 'px';
+            customCursor.style.top = cursorY + 'px';
+        });
+        
+        // Hero Text Physics Distortion
+        const heroText = document.getElementById('hero-text');
+        const heroShadow = document.querySelector('.hero-shadow');
+        const letters = heroText.querySelectorAll('.letter');
+        
+        // Store original positions
+        const letterData = [];
+        letters.forEach((letter, i) => {
+            const rect = letter.getBoundingClientRect();
+            letterData.push({
+                el: letter,
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2,
+                baseX: 0,
+                baseY: 0,
+                currentX: 0,
+                currentY: 0
+            });
+        });
+        
+        let floatPhase = 0;
+        
+        function updateHeroText() {
+            floatPhase += 0.02;
+            
+            // Get hero container position for center reference
+            const containerRect = heroText.getBoundingClientRect();
+            const textCenterX = containerRect.left + containerRect.width / 2;
+            const textCenterY = containerRect.top + containerRect.height / 2;
+            
+            // Distance from cursor to text center
+            const dx = cursorX - textCenterX;
+            const dy = cursorY - textCenterY;
+            const cursorDist = Math.sqrt(dx * dx + dy * dy);
+            
+            // Max distance for effect (300px)
+            const maxDist = 300;
+            const globalInfluence = Math.max(0, 1 - cursorDist / maxDist);
+            
+            // Shadow reaction
+            const shadowX = dx * 0.02 * globalInfluence;
+            const shadowScale = 1 + globalInfluence * 0.1;
+            const shadowOpacity = 0.6 + globalInfluence * 0.2;
+            heroShadow.style.transform = `translate(${shadowX}px, 0) scale(${shadowScale})`;
+            heroShadow.style.opacity = shadowOpacity;
+            
+            // Update each letter
+            letters.forEach((letter, i) => {
+                const data = letterData[i];
+                const rect = letter.getBoundingClientRect();
+                const letterX = rect.left + rect.width / 2;
+                const letterY = rect.top + rect.height / 2;
+                
+                // Distance from cursor to this letter
+                const ldx = cursorX - letterX;
+                const ldy = cursorY - letterY;
+                const ldist = Math.sqrt(ldx * ldx + ldy * ldy);
+                
+                // Calculate repulsion (letters move away from cursor)
+                const influence = Math.max(0, 1 - ldist / 200);
+                const maxOffset = 15;
+                
+                // Direction away from cursor
+                const angle = Math.atan2(ldy, ldx);
+                const pushX = -Math.cos(angle) * maxOffset * influence;
+                const pushY = -Math.sin(angle) * maxOffset * influence;
+                
+                // Add floating motion
+                const floatY = Math.sin(floatPhase + i * 0.3) * 3;
+                
+                // Target position
+                const targetX = pushX;
+                const targetY = pushY + floatY;
+                
+                // Smooth lerp
+                data.currentX += (targetX - data.currentX) * 0.1;
+                data.currentY += (targetY - data.currentY) * 0.1;
+                
+                // Apply transform
+                letter.style.transform = `translate(${data.currentX.toFixed(2)}px, ${data.currentY.toFixed(2)}px)`;
+            });
+            
+            requestAnimationFrame(updateHeroText);
+        }
+        
+        // Recalculate positions on resize
+        window.addEventListener('resize', () => {
+            letterData.forEach((data, i) => {
+                const rect = letters[i].getBoundingClientRect();
+                data.x = rect.left + rect.width / 2;
+                data.y = rect.top + rect.height / 2;
+            });
+        });
+        
+        updateHeroText();
+        
+        // Depth Navigation System
+        const navItems = document.querySelectorAll('.depth-nav .nav-item');
+        let activeIndex = 1; // Skills is active
+        
+        function updateNavDepth() {
+            navItems.forEach((item, index) => {
+                const diff = Math.abs(index - activeIndex);
+                
+                item.classList.remove('active', 'near', 'far', 'distant');
+                
+                if (diff === 0) {
+                    item.classList.add('active');
+                } else if (diff === 1) {
+                    item.classList.add('near');
+                } else if (diff === 2) {
+                    item.classList.add('far');
+                } else {
+                    item.classList.add('distant');
+                }
+            });
+        }
+        
+        // Mouse parallax effect
+        document.addEventListener('mousemove', (e) => {
+            const xPercent = (e.clientX / window.innerWidth - 0.5) * 2;
+            const yPercent = (e.clientY / window.innerHeight - 0.5) * 2;
+            
+            navItems.forEach((item, index) => {
+                const diff = index - activeIndex;
+                const depth = Math.abs(diff) + 1;
+                const parallaxX = xPercent * depth * 3;
+                const parallaxY = yPercent * depth * 2;
+                
+                // Add parallax to existing transform
+                const baseTransform = item.style.transform || '';
+                item.style.setProperty('--parallax-x', `${parallaxX}px`);
+                item.style.setProperty('--parallax-y', `${parallaxY}px`);
+            });
+        });
+        
+        // Page URLs for navigation
+        const pageUrls = ['index.html', 'about.html', 'skills.html', 'Project.html'];
+        
+        navItems.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                if (index !== targetIndex) {
+                    window.location.href = pageUrls[index];
+                }
+            });
+        });
+        
+        // Smooth scroll to change active
+        let targetIndex = 2; // Skills is active
+        let currentIndex = 1;
+        let isAnimating = false;
+        let lastScrollTime = 0;
+        const scrollCooldown = 400; // ms between scroll triggers
+        
+        function lerpIndex() {
+            const diff = targetIndex - currentIndex;
+            
+            if (Math.abs(diff) > 0.001) {
+                currentIndex += diff * 0.15; // Smooth easing
+                activeIndex = Math.round(currentIndex);
+                updateNavDepth();
+                requestAnimationFrame(lerpIndex);
+            } else {
+                currentIndex = targetIndex;
+                activeIndex = Math.round(currentIndex);
+                updateNavDepth();
+                isAnimating = false;
+            }
+        }
+        
+        document.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            
+            const now = Date.now();
+            if (now - lastScrollTime < scrollCooldown) return;
+            
+            const direction = e.deltaY > 0 ? 1 : -1;
+            const newTarget = Math.max(0, Math.min(navItems.length - 1, targetIndex + direction));
+            
+            if (newTarget !== targetIndex) {
+                targetIndex = newTarget;
+                lastScrollTime = now;
+                
+                if (!isAnimating) {
+                    isAnimating = true;
+                    lerpIndex();
+                }
+            }
+        }, { passive: false });
+        
+        // Initialize
+        updateNavDepth();
+        
+        // Track nav hover state - circle to dot transformation only on active item
+        navItems.forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                if (item.classList.contains('active')) {
+                    isHoveringNav = true;
+                    customCursor.classList.add('hover-mode');
+                }
+            });
+            item.addEventListener('mouseleave', () => {
+                isHoveringNav = false;
+                customCursor.classList.remove('hover-mode');
+            });
+        });
+        
+        // Track hover-target elements (resume link, etc.)
+        const hoverTargets = document.querySelectorAll('.hover-target');
+        hoverTargets.forEach(target => {
+            target.addEventListener('mouseenter', () => {
+                customCursor.classList.add('hover-mode');
+            });
+            target.addEventListener('mouseleave', () => {
+                customCursor.classList.remove('hover-mode');
+            });
+        });
+        
+        // ===== Minimal UI Elements Logic =====
+        
+        // Live Time & Date
+        const liveTimeEl = document.getElementById('live-time');
+        const dateDisplayEl = document.getElementById('date-display');
+        const timeGreetingEl = document.getElementById('time-greeting');
+        
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            liveTimeEl.textContent = `${hours}:${minutes} IST`;
+            
+            // Date
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const day = now.getDate();
+            const month = months[now.getMonth()];
+            const year = now.getFullYear();
+            dateDisplayEl.textContent = `${day} ${month} ${year}`;
+            
+            // Time-based greeting
+            const hour = now.getHours();
+            let greeting;
+            if (hour < 12) greeting = 'Morning';
+            else if (hour < 17) greeting = 'Afternoon';
+            else greeting = 'Evening';
+            timeGreetingEl.textContent = `Good ${greeting}`;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // Session Timer
+        const sessionTimerEl = document.getElementById('session-timer');
+        const sessionStart = Date.now();
+        
+        function updateSessionTimer() {
+            const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+            const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
+            const seconds = String(elapsed % 60).padStart(2, '0');
+            sessionTimerEl.textContent = `Session: ${minutes}:${seconds}`;
+        }
+        setInterval(updateSessionTimer, 1000);
+        
+        // FPS Counter
+        const fpsEl = document.getElementById('fps-counter');
+        let lastTimeFPS = performance.now();
+        let frameCount = 0;
+        
+        function updateFPS() {
+            const now = performance.now();
+            frameCount++;
+            
+            if (now - lastTimeFPS >= 1000) {
+                fpsEl.textContent = `FPS: ${frameCount}`;
+                frameCount = 0;
+                lastTimeFPS = now;
+            }
+            requestAnimationFrame(updateFPS);
+        }
+        updateFPS();
+        
+        // System Status (subtle pulsing)
+        const systemStatusEl = document.getElementById('system-status');
+        setInterval(() => {
+            systemStatusEl.style.opacity = '0.55';
+            setTimeout(() => {
+                systemStatusEl.style.opacity = '0.4';
+            }, 500);
+        }, 3000);
+    </script>
+    
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xffffff);
+        
+        // Camera setup - perspective camera
+        const camera = new THREE.PerspectiveCamera(
+            50,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        // Position camera at center, grid at 3.2 will appear on right
+        camera.position.set(0, 0, 6);
+        
+        // Renderer setup
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(renderer.domElement);
+        
+        // Create contact shadow texture
+        function createContactShadowTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            
+            const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+            gradient.addColorStop(0, 'rgba(0,0,0,0.6)');
+            gradient.addColorStop(0.3, 'rgba(0,0,0,0.25)');
+            gradient.addColorStop(0.6, 'rgba(0,0,0,0.1)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 128, 128);
+            
+            return new THREE.CanvasTexture(canvas);
+        }
+        
+        // Contact shadow plane (always under grid)
+        const shadowTexture = createContactShadowTexture();
+        const shadowGeometry = new THREE.PlaneGeometry(5, 5);
+        const shadowMaterial = new THREE.MeshBasicMaterial({
+            map: shadowTexture,
+            transparent: true,
+            opacity: 0.9,
+            depthWrite: false
+        });
+        const contactShadow = new THREE.Mesh(shadowGeometry, shadowMaterial);
+        contactShadow.rotation.x = -Math.PI / 2;
+        contactShadow.position.set(3.2, -2.3, 0);
+        scene.add(contactShadow);
+        
+        // Diamond / Octahedron Configuration - Parametric Shell
+        const particleCount = 8000;
+        const diamondRadius = 1.6; // Size of the diamond
+        
+        // Create buffer geometry for performance
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const originalPositions = new Float32Array(particleCount * 3);
+        
+        // Golden angle for even distribution
+        const phi = Math.PI * (3 - Math.sqrt(5));
+        
+        for (let i = 0; i < particleCount; i++) {
+            // Even distribution on sphere first
+            const y = 1 - (i / (particleCount - 1)) * 2; // y from 1 to -1
+            const radiusAtY = Math.sqrt(1 - y * y);
+            const theta = phi * i;
+            
+            const sphereX = Math.cos(theta) * radiusAtY;
+            const sphereZ = Math.sin(theta) * radiusAtY;
+            const sphereY = y;
+            
+            // Convert sphere to diamond (octahedron) using Manhattan distance normalization
+            // Diamond: |x| + |y| + |z| = r
+            const manhattanSum = Math.abs(sphereX) + Math.abs(sphereY) + Math.abs(sphereZ);
+            const scale = diamondRadius / manhattanSum;
+            
+            const x = sphereX * scale;
+            const diamondY = sphereY * scale;
+            const z = sphereZ * scale;
+            
+            // Add subtle surface variation for organic feel
+            const jitter = 0.02;
+            const jx = (Math.random() - 0.5) * jitter;
+            const jy = (Math.random() - 0.5) * jitter;
+            const jz = (Math.random() - 0.5) * jitter;
+            
+            // VERTICAL diamond - standing upright (y is already up)
+            positions[i * 3] = x + jx;
+            positions[i * 3 + 1] = diamondY + jy;
+            positions[i * 3 + 2] = z + jz;
+            
+            originalPositions[i * 3] = x + jx;
+            originalPositions[i * 3 + 1] = diamondY + jy;
+            originalPositions[i * 3 + 2] = z + jz;
+        }
+        
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        
+        // Create particle material - small black dots
+        const material = new THREE.PointsMaterial({
+            color: 0x000000,
+            size: 0.025,
+            transparent: true,
+            opacity: 0.75,
+            sizeAttenuation: true
+        });
+        
+        // Create the particle system
+        const particles = new THREE.Points(geometry, material);
+        
+        // Create connecting lines between nearby particles
+        const lineMaterial = new THREE.LineBasicMaterial({
+            color: 0x000000,
+            transparent: true,
+            opacity: 0.15
+        });
+        
+        const lineGeometry = new THREE.BufferGeometry();
+        const linePositions = [];
+        const connectionDistance = 0.35; // Max distance to connect
+        const maxConnections = 3; // Max lines per particle
+        
+        // Build connections
+        for (let i = 0; i < particleCount; i++) {
+            const ix = i * 3;
+            const x1 = positions[ix];
+            const y1 = positions[ix + 1];
+            const z1 = positions[ix + 2];
+            
+            let connections = 0;
+            
+            for (let j = i + 1; j < particleCount && connections < maxConnections; j++) {
+                const jx = j * 3;
+                const x2 = positions[jx];
+                const y2 = positions[jx + 1];
+                const z2 = positions[jx + 2];
+                
+                const dx = x2 - x1;
+                const dy = y2 - y1;
+                const dz = z2 - z1;
+                const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                
+                if (dist < connectionDistance) {
+                    linePositions.push(x1, y1, z1);
+                    linePositions.push(x2, y2, z2);
+                    connections++;
+                }
+            }
+        }
+        
+        lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+        const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+        
+        // Center the diamond more to the right
+        particles.position.x = 3.2;
+        lines.position.x = 3.2;
+        scene.add(particles);
+        scene.add(lines);
+        
+        // Drag rotation variables - horizontal axis only (like ring)
+        let isDragging = false;
+        let previousMouseX = 0;
+        let rotationVelocity = 0;
+        
+        // Drag events for rotation - horizontal axis only
+        document.addEventListener('mousedown', (event) => {
+            isDragging = true;
+            previousMouseX = event.clientX;
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+        
+        document.addEventListener('mousemove', (event) => {
+            if (isDragging) {
+                const deltaX = event.clientX - previousMouseX;
+                rotationVelocity = deltaX * 0.002; // Horizontal drag rotates around Y
+                previousMouseX = event.clientX;
+            }
+        });
+        
+        // Window resize handling
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Animation variables
+        const clock = new THREE.Clock();
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const time = clock.getElapsedTime();
+            const delta = clock.getDelta();
+            
+            // Constant slow rotation - horizontal axis only (Y-axis)
+            particles.rotation.y += 0.0008;
+            lines.rotation.y += 0.0008;
+            
+            // Apply drag rotation velocity
+            particles.rotation.y += rotationVelocity;
+            lines.rotation.y += rotationVelocity;
+            rotationVelocity *= 0.95; // Friction
+            
+            // Animate contact shadow
+            contactShadow.material.opacity = 0.8 + Math.sin(time * 0.5) * 0.05;
+            contactShadow.scale.setScalar(1 + Math.sin(time * 0.3) * 0.02);
+            
+            // Diamond subtle pulse - breathing effect
+            const positions = geometry.attributes.position.array;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const ix = i * 3;
+                const iy = i * 3 + 1;
+                const iz = i * 3 + 2;
+                
+                const ox = originalPositions[ix];
+                const oy = originalPositions[iy];
+                const oz = originalPositions[iz];
+                
+                // Get original Manhattan distance from center (for diamond shape)
+                const manhattanDist = Math.abs(ox) + Math.abs(oy) + Math.abs(oz);
+                
+                // Create wave effect based on position and time
+                const wave = Math.sin(time * 1.5 + ox * 2 + oy * 1.5) * 0.025;
+                const pulse = Math.cos(time * 0.8 + oz * 3) * 0.02;
+                
+                // Apply displacement outward along diamond normals
+                const displacement = wave + pulse;
+                const scale = 1 + displacement / manhattanDist;
+                
+                positions[ix] = ox * scale;
+                positions[iy] = oy * scale;
+                positions[iz] = oz * scale;
+            }
+            
+            geometry.attributes.position.needsUpdate = true;
+            
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+    </script>
+    
+    <script>
+        // Simple Loading Screen
+        const loadingScreen = document.getElementById('loading-screen');
+        const progressBar = document.getElementById('loading-progress-bar');
+        let progress = 0;
+        
+        function updateProgress() {
+            if (progress < 100) {
+                progress += Math.random() * 8 + 2;
+                if (progress > 100) progress = 100;
+                progressBar.style.width = progress + '%';
+                setTimeout(updateProgress, 30);
+            } else {
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                }, 200);
+            }
+        }
+        
+        window.addEventListener('load', () => {
+            updateProgress();
+        });
+    </script>
+</body>
+</html>

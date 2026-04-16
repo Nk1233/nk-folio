@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particle Sphere</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #ffffff;
+            overflow: hidden;
+            cursor: none;
+        }
+        
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
+        }
+        
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        
+        .loading-text {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: clamp(24px, 4vw, 48px);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: #000;
+            text-align: center;
+            min-height: 1.2em;
+            transition: opacity 0.3s ease;
+        }
+        
+        .loading-progress-container {
+            width: 200px;
+            height: 2px;
+            background: rgba(0, 0, 0, 0.1);
+            margin-top: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loading-progress-bar {
+            height: 100%;
+            background: #000;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        .loading-counter {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            color: #000;
+            margin-top: 12px;
+        }
+        
+        canvas {
+            display: block;
+        }
+        
+        /* Custom Cursor */
+        /* Custom Cursor - Circle to Dot */
+        .custom-cursor {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 1.5px solid #000;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        border-width 0.3s ease,
+                        background 0.3s ease;
+        }
+        
+        .custom-cursor.hover-mode {
+            width: 8px;
+            height: 8px;
+            border-width: 0;
+            background: #000;
+        }
+        
+        /* Minimal UI Elements */
+        .ui-element {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            color: #000;
+            opacity: 0.55;
+            position: fixed;
+            pointer-events: none;
+            z-index: 20;
+            transition: opacity 0.3s ease;
+        }
+        
+        .ui-element:hover {
+            opacity: 0.8;
+        }
+        
+        /* Top Right Cluster */
+        .live-time {
+            top: 20px;
+            right: 20px;
+        }
+        
+        .date-display {
+            top: 38px;
+            right: 20px;
+            font-size: 10px;
+            opacity: 0.45;
+        }
+        
+        .fps-counter {
+            top: 54px;
+            right: 20px;
+            font-size: 9px;
+            opacity: 0.4;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Top Left - Time Greeting */
+        .time-greeting {
+            top: 20px;
+            left: 3%;
+            font-size: 10px;
+            opacity: 0.5;
+            text-transform: uppercase;
+        }
+        
+        /* Bottom Right - Session & Status */
+        .session-timer {
+            bottom: 20px;
+            right: 20px;
+            font-size: 10px;
+            opacity: 0.45;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .system-status {
+            bottom: 38px;
+            right: 20px;
+            font-size: 9px;
+            opacity: 0.4;
+        }
+        
+        /* Hero Text */
+        .hero-container {
+            position: fixed;
+            left: 12%;
+            top: 35%;
+            z-index: 10;
+            pointer-events: none;
+        }
+        
+        .hero-text {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: clamp(56px, 7vw, 120px);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #000;
+            line-height: 1.1;
+        }
+        
+        .hero-text .line {
+            display: block;
+        }
+        
+        .hero-text .letter {
+            display: inline-block;
+            transition: transform 0.3s ease-out;
+            will-change: transform;
+        }
+        
+        /* 3D Depth Effect */
+        .hero-text {
+            text-shadow: 
+                1px 1px 0 rgba(0,0,0,0.15),
+                2px 2px 0 rgba(0,0,0,0.12),
+                3px 3px 0 rgba(0,0,0,0.09),
+                4px 4px 0 rgba(0,0,0,0.06),
+                5px 5px 0 rgba(0,0,0,0.04),
+                6px 6px 0 rgba(0,0,0,0.02),
+                12px 24px 48px rgba(0,0,0,0.18);
+        }
+        
+        .hero-shadow {
+            position: absolute;
+            top: 16px;
+            left: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: clamp(56px, 7vw, 120px);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: transparent;
+            text-shadow: 0 30px 60px rgba(0,0,0,0.25);
+            line-height: 1.1;
+            z-index: -1;
+            opacity: 0.6;
+            will-change: transform, opacity;
+            filter: blur(3px);
+        }
+        
+        /* Ground shadow */
+        .ground-shadow {
+            position: fixed;
+            left: 12%;
+            bottom: 15%;
+            width: 300px;
+            height: 60px;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 40%, transparent 70%);
+            filter: blur(20px);
+            z-index: 5;
+            pointer-events: none;
+        }
+        
+        /* Depth Navigation */
+        .depth-nav {
+            position: fixed;
+            left: 3%;
+            top: 55%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 15;
+            pointer-events: none;
+        }
+        
+        .depth-nav .nav-item {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #000;
+            cursor: none;
+            pointer-events: auto;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: left center;
+            position: relative;
+            padding-left: 0;
+            display: block;
+            text-decoration: none;
+        }
+        
+        /* Hover line effect - only on active item */
+        .depth-nav .nav-item.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            transform: scaleX(0);
+            transform-origin: left center;
+            width: 100%;
+            height: 1px;
+            background: #000;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .depth-nav .nav-item.active:hover::after {
+            transform: scaleX(1);
+        }
+        
+        /* Depth states */
+        .depth-nav .nav-item.active {
+            font-size: 18px;
+            font-weight: 500;
+            opacity: 1;
+            filter: blur(0);
+            transform: translateX(0) scale(1);
+        }
+        
+        .depth-nav .nav-item.near {
+            font-size: 15px;
+            opacity: 0.6;
+            filter: blur(0.3px);
+            transform: translateX(-8px) scale(0.95);
+        }
+        
+        .depth-nav .nav-item.far {
+            font-size: 13px;
+            opacity: 0.35;
+            filter: blur(0.8px);
+            transform: translateX(-15px) scale(0.88);
+        }
+        
+        .depth-nav .nav-item.distant {
+            font-size: 11px;
+            opacity: 0.18;
+            filter: blur(1.5px);
+            transform: translateX(-22px) scale(0.78);
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            canvas {
+                display: none !important;
+            }
+            
+            .depth-nav {
+                left: 5%;
+                gap: 12px;
+            }
+            
+            .depth-nav .nav-item {
+                font-size: 12px;
+                letter-spacing: 0.1em;
+            }
+            
+            .hero-text {
+                font-size: clamp(32px, 12vw, 80px);
+            }
+            
+            .ui-element {
+                font-size: 9px;
+            }
+            
+            .live-time {
+                top: 12px;
+                right: 12px;
+            }
+            
+            .date-display {
+                top: 26px;
+                right: 12px;
+            }
+            
+            .fps-counter {
+                top: 40px;
+                right: 12px;
+            }
+            
+            .time-greeting {
+                top: 12px;
+                left: 5%;
+            }
+            
+            .session-timer,
+            .system-status {
+                display: none;
+            }
+        }
+        
+        /* Resume Link */
+        .resume-link {
+            position: fixed;
+            bottom: 20px;
+            left: 3%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #000;
+            text-decoration: none;
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+            z-index: 20;
+            cursor: none;
+        }
+        
+        .resume-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: #000;
+            transition: width 0.3s ease;
+        }
+        
+        .resume-link:hover {
+            opacity: 1;
+        }
+        
+        .resume-link:hover::after {
+            width: 100%;
+        }
+        
+        /* License Text */
+        .license-text {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            color: #000;
+            opacity: 0.4;
+            z-index: 20;
+            cursor: default;
+        }
+        
+        @media (max-width: 768px) {
+            .resume-link {
+                font-size: 10px;
+                bottom: 15px;
+            }
+            
+            .license-text {
+                font-size: 8px;
+                bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-text" id="loading-text">Loading</div>
+        <div class="loading-progress-container">
+            <div class="loading-progress-bar" id="loading-progress-bar"></div>
+        </div>
+        <div class="loading-counter" id="loading-counter">0%</div>
+    </div>
+    
+    <!-- Custom Cursor -->
+    <div class="custom-cursor" id="custom-cursor"></div>
+    
+    <!-- Minimal UI Elements -->
+    <div class="ui-element live-time" id="live-time"></div>
+    <div class="ui-element date-display" id="date-display"></div>
+    <div class="ui-element fps-counter" id="fps-counter">FPS: --</div>
+    <div class="ui-element time-greeting" id="time-greeting"></div>
+    <div class="ui-element session-timer" id="session-timer">Session: 00:00</div>
+    <div class="ui-element system-status" id="system-status">System Online</div>
+    <a href="Resume/Nikhil%20Mishra%20%E2%80%93%20Data%20Analyst%20Resume.pdf" class="resume-link hover-target" target="_blank" rel="noopener">Resume</a>
+    
+    <div class="license-text">Made By Nikhil With ❤️ and lots of 🍵</div>
+    
+    <!-- Ground Shadow -->
+    <div class="ground-shadow"></div>
+    
+    <!-- Depth Navigation -->
+    <div class="depth-nav" id="depth-nav">
+        <a href="about.html" class="nav-item" data-index="0">About</a>
+        <a href="skills.html" class="nav-item" data-index="1">Skills</a>
+        <a href="Project.html" class="nav-item" data-index="2">Project</a>
+        <a href="contact.html" class="nav-item" data-index="3">Contact</a>
+    </div>
+    
+    <!-- Hero Text -->
+    <div class="hero-container">
+        <div class="hero-shadow">
+            <div>Hello!</div>
+            <div>I Am</div>
+            <div>Nikhil</div>
+        </div>
+        <div class="hero-text" id="hero-text">
+            <div class="line">
+                <span class="letter">H</span><span class="letter">e</span><span class="letter">l</span><span class="letter">l</span><span class="letter">o</span><span class="letter">!</span>
+            </div>
+            <div class="line">
+                <span class="letter">I</span><span class="letter">&nbsp;</span><span class="letter">A</span><span class="letter">m</span>
+            </div>
+            <div class="line">
+                <span class="letter">N</span><span class="letter">i</span><span class="letter">k</span><span class="letter">h</span><span class="letter">i</span><span class="letter">l</span>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        // Custom Cursor Logic - Circle to Dot
+        const customCursor = document.getElementById('custom-cursor');
+        
+        let cursorX = 0;
+        let cursorY = 0;
+        let isHoveringNav = false;
+        
+        document.addEventListener('mousemove', (e) => {
+            cursorX = e.clientX;
+            cursorY = e.clientY;
+            customCursor.style.left = cursorX + 'px';
+            customCursor.style.top = cursorY + 'px';
+        });
+        
+        // Hero Text Physics Distortion
+        const heroText = document.getElementById('hero-text');
+        const heroShadow = document.querySelector('.hero-shadow');
+        const letters = heroText.querySelectorAll('.letter');
+        
+        // Store original positions
+        const letterData = [];
+        letters.forEach((letter, i) => {
+            const rect = letter.getBoundingClientRect();
+            letterData.push({
+                el: letter,
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2,
+                baseX: 0,
+                baseY: 0,
+                currentX: 0,
+                currentY: 0
+            });
+        });
+        
+        let floatPhase = 0;
+        
+        function updateHeroText() {
+            floatPhase += 0.02;
+            
+            // Get hero container position for center reference
+            const containerRect = heroText.getBoundingClientRect();
+            const textCenterX = containerRect.left + containerRect.width / 2;
+            const textCenterY = containerRect.top + containerRect.height / 2;
+            
+            // Distance from cursor to text center
+            const dx = cursorX - textCenterX;
+            const dy = cursorY - textCenterY;
+            const cursorDist = Math.sqrt(dx * dx + dy * dy);
+            
+            // Max distance for effect (300px)
+            const maxDist = 300;
+            const globalInfluence = Math.max(0, 1 - cursorDist / maxDist);
+            
+            // Shadow reaction
+            const shadowX = dx * 0.02 * globalInfluence;
+            const shadowScale = 1 + globalInfluence * 0.1;
+            const shadowOpacity = 0.6 + globalInfluence * 0.2;
+            heroShadow.style.transform = `translate(${shadowX}px, 0) scale(${shadowScale})`;
+            heroShadow.style.opacity = shadowOpacity;
+            
+            // Update each letter
+            letters.forEach((letter, i) => {
+                const data = letterData[i];
+                const rect = letter.getBoundingClientRect();
+                const letterX = rect.left + rect.width / 2;
+                const letterY = rect.top + rect.height / 2;
+                
+                // Distance from cursor to this letter
+                const ldx = cursorX - letterX;
+                const ldy = cursorY - letterY;
+                const ldist = Math.sqrt(ldx * ldx + ldy * ldy);
+                
+                // Calculate repulsion (letters move away from cursor)
+                const influence = Math.max(0, 1 - ldist / 200);
+                const maxOffset = 15;
+                
+                // Direction away from cursor
+                const angle = Math.atan2(ldy, ldx);
+                const pushX = -Math.cos(angle) * maxOffset * influence;
+                const pushY = -Math.sin(angle) * maxOffset * influence;
+                
+                // Add floating motion
+                const floatY = Math.sin(floatPhase + i * 0.3) * 3;
+                
+                // Target position
+                const targetX = pushX;
+                const targetY = pushY + floatY;
+                
+                // Smooth lerp
+                data.currentX += (targetX - data.currentX) * 0.1;
+                data.currentY += (targetY - data.currentY) * 0.1;
+                
+                // Apply transform
+                letter.style.transform = `translate(${data.currentX.toFixed(2)}px, ${data.currentY.toFixed(2)}px)`;
+            });
+            
+            requestAnimationFrame(updateHeroText);
+        }
+        
+        // Recalculate positions on resize
+        window.addEventListener('resize', () => {
+            letterData.forEach((data, i) => {
+                const rect = letters[i].getBoundingClientRect();
+                data.x = rect.left + rect.width / 2;
+                data.y = rect.top + rect.height / 2;
+            });
+        });
+        
+        updateHeroText();
+        
+        // Depth Navigation System
+        const navItems = document.querySelectorAll('.depth-nav .nav-item');
+        let activeIndex = 0;
+        
+        function updateNavDepth() {
+            navItems.forEach((item, index) => {
+                const diff = Math.abs(index - activeIndex);
+                
+                item.classList.remove('active', 'near', 'far', 'distant');
+                
+                if (diff === 0) {
+                    item.classList.add('active');
+                } else if (diff === 1) {
+                    item.classList.add('near');
+                } else if (diff === 2) {
+                    item.classList.add('far');
+                } else {
+                    item.classList.add('distant');
+                }
+            });
+        }
+        
+        // Mouse parallax effect
+        document.addEventListener('mousemove', (e) => {
+            const xPercent = (e.clientX / window.innerWidth - 0.5) * 2;
+            const yPercent = (e.clientY / window.innerHeight - 0.5) * 2;
+            
+            navItems.forEach((item, index) => {
+                const diff = index - activeIndex;
+                const depth = Math.abs(diff) + 1;
+                const parallaxX = xPercent * depth * 3;
+                const parallaxY = yPercent * depth * 2;
+                
+                // Add parallax to existing transform
+                const baseTransform = item.style.transform || '';
+                item.style.setProperty('--parallax-x', `${parallaxX}px`);
+                item.style.setProperty('--parallax-y', `${parallaxY}px`);
+            });
+        });
+        
+        // Nav items are anchor tags - navigation handled natively by browser
+        // Only animation happens on wheel scroll, no page navigation on scroll
+        
+        // Smooth scroll to change active
+        let targetIndex = 0;
+        let currentIndex = 0;
+        let isAnimating = false;
+        let lastScrollTime = 0;
+        const scrollCooldown = 400; // ms between scroll triggers
+        
+        function lerpIndex() {
+            const diff = targetIndex - currentIndex;
+            
+            if (Math.abs(diff) > 0.001) {
+                currentIndex += diff * 0.15; // Smooth easing
+                activeIndex = Math.round(currentIndex);
+                updateNavDepth();
+                requestAnimationFrame(lerpIndex);
+            } else {
+                currentIndex = targetIndex;
+                activeIndex = Math.round(currentIndex);
+                updateNavDepth();
+                isAnimating = false;
+            }
+        }
+        
+        document.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            
+            const now = Date.now();
+            if (now - lastScrollTime < scrollCooldown) return;
+            
+            const direction = e.deltaY > 0 ? 1 : -1;
+            const newTarget = Math.max(0, Math.min(navItems.length - 1, targetIndex + direction));
+            
+            if (newTarget !== targetIndex) {
+                targetIndex = newTarget;
+                lastScrollTime = now;
+                
+                if (!isAnimating) {
+                    isAnimating = true;
+                    lerpIndex();
+                }
+            }
+        }, { passive: false });
+        
+        // Initialize
+        updateNavDepth();
+        
+        // Track nav hover state - circle to dot transformation only on active item
+        navItems.forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                if (item.classList.contains('active')) {
+                    isHoveringNav = true;
+                    customCursor.classList.add('hover-mode');
+                }
+            });
+            item.addEventListener('mouseleave', () => {
+                isHoveringNav = false;
+                customCursor.classList.remove('hover-mode');
+            });
+        });
+        
+        // Track hover-target elements (resume link, etc.)
+        const hoverTargets = document.querySelectorAll('.hover-target');
+        hoverTargets.forEach(target => {
+            target.addEventListener('mouseenter', () => {
+                customCursor.classList.add('hover-mode');
+            });
+            target.addEventListener('mouseleave', () => {
+                customCursor.classList.remove('hover-mode');
+            });
+        });
+        
+        // ===== Minimal UI Elements Logic =====
+        
+        // Live Time & Date
+        const liveTimeEl = document.getElementById('live-time');
+        const dateDisplayEl = document.getElementById('date-display');
+        const timeGreetingEl = document.getElementById('time-greeting');
+        
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            liveTimeEl.textContent = `${hours}:${minutes} IST`;
+            
+            // Date
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const day = now.getDate();
+            const month = months[now.getMonth()];
+            const year = now.getFullYear();
+            dateDisplayEl.textContent = `${day} ${month} ${year}`;
+            
+            // Time-based greeting
+            const hour = now.getHours();
+            let greeting;
+            if (hour < 12) greeting = 'Morning';
+            else if (hour < 17) greeting = 'Afternoon';
+            else greeting = 'Evening';
+            timeGreetingEl.textContent = `Good ${greeting}`;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // Session Timer
+        const sessionTimerEl = document.getElementById('session-timer');
+        const sessionStart = Date.now();
+        
+        function updateSessionTimer() {
+            const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+            const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
+            const seconds = String(elapsed % 60).padStart(2, '0');
+            sessionTimerEl.textContent = `Session: ${minutes}:${seconds}`;
+        }
+        setInterval(updateSessionTimer, 1000);
+        
+        // FPS Counter
+        const fpsEl = document.getElementById('fps-counter');
+        let lastTime = performance.now();
+        let frameCount = 0;
+        
+        function updateFPS() {
+            const now = performance.now();
+            frameCount++;
+            
+            if (now - lastTime >= 1000) {
+                fpsEl.textContent = `FPS: ${frameCount}`;
+                frameCount = 0;
+                lastTime = now;
+            }
+            requestAnimationFrame(updateFPS);
+        }
+        updateFPS();
+        
+        // System Status (subtle pulsing)
+        const systemStatusEl = document.getElementById('system-status');
+        setInterval(() => {
+            systemStatusEl.style.opacity = '0.55';
+            setTimeout(() => {
+                systemStatusEl.style.opacity = '0.4';
+            }, 500);
+        }, 3000);
+    </script>
+    
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xffffff);
+        
+        // Camera setup - perspective camera
+        const camera = new THREE.PerspectiveCamera(
+            50,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        // Position camera at center, sphere at 2.2 will appear on right
+        camera.position.set(0, 0, 6);
+        
+        // Renderer setup
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(renderer.domElement);
+        
+        // Create contact shadow texture
+        function createContactShadowTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            
+            const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+            gradient.addColorStop(0, 'rgba(0,0,0,0.6)');
+            gradient.addColorStop(0.3, 'rgba(0,0,0,0.25)');
+            gradient.addColorStop(0.6, 'rgba(0,0,0,0.1)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 128, 128);
+            
+            return new THREE.CanvasTexture(canvas);
+        }
+        
+        // Contact shadow plane (always under sphere)
+        const shadowTexture = createContactShadowTexture();
+        const shadowGeometry = new THREE.PlaneGeometry(5, 5);
+        const shadowMaterial = new THREE.MeshBasicMaterial({
+            map: shadowTexture,
+            transparent: true,
+            opacity: 0.9,
+            depthWrite: false
+        });
+        const contactShadow = new THREE.Mesh(shadowGeometry, shadowMaterial);
+        contactShadow.rotation.x = -Math.PI / 2;
+        contactShadow.position.set(2.2, -2.3, 0);
+        scene.add(contactShadow);
+        
+        // Particle sphere configuration
+        const particleCount = 8000;
+        const radius = 2;
+        
+        // Create buffer geometry for performance
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const originalPositions = new Float32Array(particleCount * 3);
+        
+        // Fibonacci sphere algorithm for even distribution
+        const phi = Math.PI * (3 - Math.sqrt(5));
+        
+        for (let i = 0; i < particleCount; i++) {
+            const y = 1 - (i / (particleCount - 1)) * 2;
+            const radiusAtY = Math.sqrt(1 - y * y);
+            const theta = phi * i;
+            
+            const x = Math.cos(theta) * radiusAtY;
+            const z = Math.sin(theta) * radiusAtY;
+            
+            positions[i * 3] = x * radius;
+            positions[i * 3 + 1] = y * radius;
+            positions[i * 3 + 2] = z * radius;
+            
+            // Store original positions for animation
+            originalPositions[i * 3] = x * radius;
+            originalPositions[i * 3 + 1] = y * radius;
+            originalPositions[i * 3 + 2] = z * radius;
+        }
+        
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        
+        // Create particle material - small black dots
+        const material = new THREE.PointsMaterial({
+            color: 0x000000,
+            size: 0.025,
+            transparent: true,
+            opacity: 0.8,
+            sizeAttenuation: true
+        });
+        
+        // Create the particle system
+        const particles = new THREE.Points(geometry, material);
+        
+        // Center the sphere more to the right
+        particles.position.x = 2.2;
+        scene.add(particles);
+        
+        // Drag rotation variables
+        let isDragging = false;
+        let previousMouseX = 0;
+        let rotationVelocity = 0;
+        
+        // Drag events for rotation
+        document.addEventListener('mousedown', (event) => {
+            isDragging = true;
+            previousMouseX = event.clientX;
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+        
+        document.addEventListener('mousemove', (event) => {
+            if (isDragging) {
+                const deltaX = event.clientX - previousMouseX;
+                rotationVelocity = deltaX * 0.002;
+                previousMouseX = event.clientX;
+            }
+        });
+        
+        // Window resize handling
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Animation variables
+        const clock = new THREE.Clock();
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const time = clock.getElapsedTime();
+            const delta = clock.getDelta();
+            
+            // Constant slow rotation on Y axis
+            particles.rotation.y += 0.0008;
+            
+            // Apply drag rotation velocity
+            particles.rotation.y += rotationVelocity;
+            rotationVelocity *= 0.95; // Friction to slow down
+            
+            // Animate contact shadow (subtle breathing effect)
+            contactShadow.material.opacity = 0.8 + Math.sin(time * 0.5) * 0.05;
+            contactShadow.scale.setScalar(1 + Math.sin(time * 0.3) * 0.02);
+            
+            // Subtle floating effect - wave distortion
+            const positions = geometry.attributes.position.array;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const ix = i * 3;
+                const iy = i * 3 + 1;
+                const iz = i * 3 + 2;
+                
+                const ox = originalPositions[ix];
+                const oy = originalPositions[iy];
+                const oz = originalPositions[iz];
+                
+                // Very subtle noise wave - elegant floating effect
+                const noise = Math.sin(time * 0.5 + oy * 0.5) * 0.02;
+                const noise2 = Math.cos(time * 0.3 + ox * 0.5) * 0.02;
+                const noise3 = Math.sin(time * 0.4 + oz * 0.5) * 0.02;
+                
+                positions[ix] = ox + noise;
+                positions[iy] = oy + noise2;
+                positions[iz] = oz + noise3;
+            }
+            
+            geometry.attributes.position.needsUpdate = true;
+            
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+    </script>
+    
+    <script>
+        // Loading Screen Animation
+        const loadingScreen = document.getElementById('loading-screen');
+        const loadingText = document.getElementById('loading-text');
+        const progressBar = document.getElementById('loading-progress-bar');
+        const counter = document.getElementById('loading-counter');
+        
+        const loadingTexts = ['Loading', 'Building', 'Rendering', 'Preparing'];
+        let textIndex = 0;
+        let progress = 0;
+        
+        // Morphing text animation
+        function morphText() {
+            loadingText.style.opacity = '0';
+            setTimeout(() => {
+                textIndex = (textIndex + 1) % loadingTexts.length;
+                loadingText.textContent = loadingTexts[textIndex];
+                loadingText.style.opacity = '1';
+            }, 300);
+        }
+        
+        // Start text morphing
+        const textInterval = setInterval(morphText, 800);
+        
+        // Progress bar and counter animation
+        function updateProgress() {
+            if (progress < 100) {
+                progress += Math.random() * 3 + 1;
+                if (progress > 100) progress = 100;
+                
+                progressBar.style.width = progress + '%';
+                counter.textContent = Math.floor(progress) + '%';
+                
+                setTimeout(updateProgress, 50);
+            } else {
+                // Loading complete
+                clearInterval(textInterval);
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                }, 500);
+            }
+        }
+        
+        // Start progress when page loads
+        window.addEventListener('load', () => {
+            updateProgress();
+        });
+    </script>
+</body>
+</html>
