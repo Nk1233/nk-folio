@@ -12,12 +12,12 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            cursor: none !important;
         }
-        
+
         body {
             background: #ffffff;
             overflow: hidden;
-            cursor: none;
         }
         
         /* Simple Loading Screen */
@@ -399,6 +399,10 @@
         .gallery-slide img.loaded {
             opacity: 1;
         }
+
+        .gallery-slide img {
+            cursor: none;
+        }
         
         .gallery-slide iframe {
             width: 100%;
@@ -764,7 +768,7 @@
             color: #000;
             opacity: 0.4;
             z-index: 20;
-            cursor: default;
+            cursor: none;
         }
         
         @media (max-width: 768px) {
