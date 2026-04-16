@@ -11,7 +11,7 @@ const projectsData = [
         duration: "6 Hours",
         tools: ["Power BI", "DAX", "Power Query", "Excel"],
         images: [
-            "media/service%20ops/primary.webp"
+            "https://raw.githubusercontent.com/Nk1233/nk-folio/main/media/service%20ops/primary.webp"
         ],
         video: "https://www.youtube.com/embed/QuXmM9gP-uA"
     },
@@ -25,7 +25,7 @@ const projectsData = [
         duration: "10 Hours",
         tools: ["Excel", "Power Query", "Pivot Tables", "VBA (Basic Macros)"],
         images: [
-            "media/ops%20tracker/primary.webp"
+            "https://raw.githubusercontent.com/Nk1233/nk-folio/main/media/ops%20tracker/primary.webp"
         ],
         video: "https://www.youtube.com/embed/XZGxkEd-WrM"
     },
@@ -39,7 +39,7 @@ const projectsData = [
         duration: "8 Hours",
         tools: ["Excel", "Power Query", "Pivot Tables", "VBA (Basic Macros)"],
         images: [
-            "media/sales%20pulse/primary.webp"
+            "https://raw.githubusercontent.com/Nk1233/nk-folio/main/media/sales%20pulse/primary.webp"
         ],
         video: "https://www.youtube.com/embed/ADCpmc5euBg"
     },
@@ -53,7 +53,7 @@ const projectsData = [
         duration: "4 Hours",
         tools: ["Power BI", "DAX", "Power Query", "Excel"],
         images: [
-            "media/sales%20insights/primary.webp"
+            "https://raw.githubusercontent.com/Nk1233/nk-folio/main/media/sales%20insights/primary.webp"
         ],
         video: "https://www.youtube.com/embed/j3WJ4qBmj70"
     },
@@ -67,7 +67,7 @@ const projectsData = [
         duration: "2 Weeks",
         tools: ["Excel", "Power Query", "Pivot Tables", "VBA (Macros & Interactions)"],
         images: [
-            "media/workforce/primary.png"
+            "https://raw.githubusercontent.com/Nk1233/nk-folio/main/media/workforce/primary.png"
         ],
         video: "https://www.youtube.com/embed/xAkKpcXWn0w"
     }
