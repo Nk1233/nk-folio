@@ -1122,56 +1122,69 @@
         contactShadow.position.set(3.2, -2.3, 0);
         scene.add(contactShadow);
         
-        // Diamond / Octahedron Configuration - Parametric Shell
-        const particleCount = 8000;
-        const diamondRadius = 1.6; // Size of the diamond
+        // Double Helix - DNA spiral representing skill growth and building blocks
+        const helixTurns = 7;
+        const particlesPerStrand = 2200;
+        const totalParticles = particlesPerStrand * 2;
+        const connections = 35; // Cross connections between strands
         
-        // Create buffer geometry for performance
         const geometry = new THREE.BufferGeometry();
-        const positions = new Float32Array(particleCount * 3);
-        const originalPositions = new Float32Array(particleCount * 3);
+        const positions = new Float32Array(totalParticles * 3);
+        const originalPositions = new Float32Array(totalParticles * 3);
+        const sizes = new Float32Array(totalParticles);
         
-        // Golden angle for even distribution
-        const phi = Math.PI * (3 - Math.sqrt(5));
+        const helixHeight = 3.8;
+        const helixRadius = 0.65;
         
-        for (let i = 0; i < particleCount; i++) {
-            // Even distribution on sphere first
-            const y = 1 - (i / (particleCount - 1)) * 2; // y from 1 to -1
-            const radiusAtY = Math.sqrt(1 - y * y);
-            const theta = phi * i;
+        let pIndex = 0;
+        
+        // Create two intertwined strands
+        for (let strand = 0; strand < 2; strand++) {
+            const strandOffset = strand * Math.PI;
             
-            const sphereX = Math.cos(theta) * radiusAtY;
-            const sphereZ = Math.sin(theta) * radiusAtY;
-            const sphereY = y;
-            
-            // Convert sphere to diamond (octahedron) using Manhattan distance normalization
-            // Diamond: |x| + |y| + |z| = r
-            const manhattanSum = Math.abs(sphereX) + Math.abs(sphereY) + Math.abs(sphereZ);
-            const scale = diamondRadius / manhattanSum;
-            
-            const x = sphereX * scale;
-            const diamondY = sphereY * scale;
-            const z = sphereZ * scale;
-            
-            // Add subtle surface variation for organic feel
-            const jitter = 0.02;
-            const jx = (Math.random() - 0.5) * jitter;
-            const jy = (Math.random() - 0.5) * jitter;
-            const jz = (Math.random() - 0.5) * jitter;
-            
-            // VERTICAL diamond - standing upright (y is already up)
-            positions[i * 3] = x + jx;
-            positions[i * 3 + 1] = diamondY + jy;
-            positions[i * 3 + 2] = z + jz;
-            
-            originalPositions[i * 3] = x + jx;
-            originalPositions[i * 3 + 1] = diamondY + jy;
-            originalPositions[i * 3 + 2] = z + jz;
+            for (let i = 0; i < particlesPerStrand; i++) {
+                const t = i / particlesPerStrand;
+                const angle = t * helixTurns * Math.PI * 2 + strandOffset;
+                
+                // Helix position
+                const y = (t - 0.5) * helixHeight;
+                const x = Math.cos(angle) * helixRadius;
+                const z = Math.sin(angle) * helixRadius;
+                
+                // Add thickness variation for organic feel
+                const thickness = 0.12;
+                const r = (Math.random() - 0.5) * thickness;
+                
+                // Local coordinate system at helix point
+                const tangentX = -Math.sin(angle);
+                const tangentZ = Math.cos(angle);
+                const normalX = Math.cos(angle);
+                const normalZ = Math.sin(angle);
+                
+                const fx = x + normalX * r;
+                const fy = y + (Math.random() - 0.5) * thickness * 0.5;
+                const fz = z + normalZ * r;
+                
+                // Larger particles at regular intervals along strand
+                const isHighlight = i % 150 === 0;
+                sizes[pIndex] = isHighlight ? 0.032 : 0.018 + Math.random() * 0.012;
+                
+                positions[pIndex * 3] = fx;
+                positions[pIndex * 3 + 1] = fy;
+                positions[pIndex * 3 + 2] = fz;
+                
+                originalPositions[pIndex * 3] = fx;
+                originalPositions[pIndex * 3 + 1] = fy;
+                originalPositions[pIndex * 3 + 2] = fz;
+                
+                pIndex++;
+            }
         }
         
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
         
-        // Create particle material - small black dots
+        // Create particle material
         const material = new THREE.PointsMaterial({
             color: 0x000000,
             size: 0.025,
@@ -1183,54 +1196,14 @@
         // Create the particle system
         const particles = new THREE.Points(geometry, material);
         
-        // Create connecting lines between nearby particles
-        const lineMaterial = new THREE.LineBasicMaterial({
-            color: 0x000000,
-            transparent: true,
-            opacity: 0.15
-        });
-        
-        const lineGeometry = new THREE.BufferGeometry();
-        const linePositions = [];
-        const connectionDistance = 0.35; // Max distance to connect
-        const maxConnections = 3; // Max lines per particle
-        
-        // Build connections
-        for (let i = 0; i < particleCount; i++) {
-            const ix = i * 3;
-            const x1 = positions[ix];
-            const y1 = positions[ix + 1];
-            const z1 = positions[ix + 2];
-            
-            let connections = 0;
-            
-            for (let j = i + 1; j < particleCount && connections < maxConnections; j++) {
-                const jx = j * 3;
-                const x2 = positions[jx];
-                const y2 = positions[jx + 1];
-                const z2 = positions[jx + 2];
-                
-                const dx = x2 - x1;
-                const dy = y2 - y1;
-                const dz = z2 - z1;
-                const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-                
-                if (dist < connectionDistance) {
-                    linePositions.push(x1, y1, z1);
-                    linePositions.push(x2, y2, z2);
-                    connections++;
-                }
-            }
-        }
-        
-        lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
-        const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
-        
-        // Center the diamond more to the right
+        // Center the double helix to the right
         particles.position.x = 3.2;
-        lines.position.x = 3.2;
         scene.add(particles);
-        scene.add(lines);
+        
+        // Sparkle tracking - which particles are currently sparkling
+        const sparkleIndices = new Set();
+        const maxSparkles = 15;
+        let lastSparkleTime = 0;
         
         // Drag rotation variables - horizontal axis only (like ring)
         let isDragging = false;
@@ -1274,21 +1247,33 @@
             
             // Constant slow rotation - horizontal axis only (Y-axis)
             particles.rotation.y += 0.0008;
-            lines.rotation.y += 0.0008;
             
             // Apply drag rotation velocity
             particles.rotation.y += rotationVelocity;
-            lines.rotation.y += rotationVelocity;
             rotationVelocity *= 0.95; // Friction
             
             // Animate contact shadow
             contactShadow.material.opacity = 0.8 + Math.sin(time * 0.5) * 0.05;
             contactShadow.scale.setScalar(1 + Math.sin(time * 0.3) * 0.02);
             
-            // Diamond subtle pulse - breathing effect
+            // Double helix - refined organic animation
             const positions = geometry.attributes.position.array;
+            const sizes = geometry.attributes.size.array;
             
-            for (let i = 0; i < particleCount; i++) {
+            // Random sparkle effect - occasional particles brighten briefly
+            if (time - lastSparkleTime > 0.8 && sparkleIndices.size < maxSparkles) {
+                const newSparkle = Math.floor(Math.random() * totalParticles);
+                sparkleIndices.add(newSparkle);
+                lastSparkleTime = time;
+                
+                // Remove old sparkles
+                if (sparkleIndices.size >= maxSparkles) {
+                    const first = sparkleIndices.values().next().value;
+                    sparkleIndices.delete(first);
+                }
+            }
+            
+            for (let i = 0; i < totalParticles; i++) {
                 const ix = i * 3;
                 const iy = i * 3 + 1;
                 const iz = i * 3 + 2;
@@ -1297,21 +1282,35 @@
                 const oy = originalPositions[iy];
                 const oz = originalPositions[iz];
                 
-                // Get original Manhattan distance from center (for diamond shape)
-                const manhattanDist = Math.abs(ox) + Math.abs(oy) + Math.abs(oz);
+                // Gentle breathing pulse
+                const breath = Math.sin(time * 0.35) * 0.012;
+                const scale = 1 + breath;
                 
-                // Create wave effect based on position and time
-                const wave = Math.sin(time * 1.5 + ox * 2 + oy * 1.5) * 0.025;
-                const pulse = Math.cos(time * 0.8 + oz * 3) * 0.02;
+                // Smooth vertical undulation
+                const undulate = Math.sin(time * 0.25 + oy * 0.6) * 0.01;
                 
-                // Apply displacement outward along diamond normals
-                const displacement = wave + pulse;
-                const scale = 1 + displacement / manhattanDist;
+                // Individual particle drift - subtle organic motion
+                const driftX = Math.sin(time * 0.4 + i * 0.1) * 0.008;
+                const driftY = Math.cos(time * 0.3 + i * 0.15) * 0.008;
+                const driftZ = Math.sin(time * 0.5 + i * 0.08) * 0.006;
                 
-                positions[ix] = ox * scale;
-                positions[iy] = oy * scale;
-                positions[iz] = oz * scale;
+                positions[ix] = ox * scale + driftX;
+                positions[iy] = oy + undulate + driftY;
+                positions[iz] = oz * scale + driftZ;
+                
+                // Base size with gentle pulse
+                let baseSize = sizes[i] > 0.03 ? 0.03 : 0.018;
+                const pulse = Math.sin(time * 0.8 + i * 0.05) * 0.003;
+                
+                // Sparkle effect - brighten and enlarge random particles
+                if (sparkleIndices.has(i)) {
+                    sizes[i] = baseSize + pulse + 0.012;
+                } else {
+                    sizes[i] = baseSize + pulse;
+                }
             }
+            
+            geometry.attributes.size.needsUpdate = true;
             
             geometry.attributes.position.needsUpdate = true;
             
