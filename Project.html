@@ -392,6 +392,12 @@
             max-height: 320px;
             object-fit: contain;
             display: block;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .gallery-slide img.loaded {
+            opacity: 1;
         }
         
         .gallery-slide iframe {
@@ -1342,6 +1348,10 @@
                 const img = document.createElement('img');
                 img.src = data.images[i];
                 img.alt = `Project Image ${i + 1}`;
+                img.loading = 'lazy';
+                img.decoding = 'async';
+                img.addEventListener('load', () => img.classList.add('loaded'));
+                img.addEventListener('error', () => img.classList.add('loaded'));
                 slide.appendChild(img);
                 gallerySlider.appendChild(slide);
             }
