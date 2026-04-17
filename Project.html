@@ -842,6 +842,7 @@
                 object-fit: contain;
                 display: block;
                 margin: 0 auto;
+                transition: opacity 0.3s ease;
             }
 
             .mobile-media-slide iframe {
@@ -1887,9 +1888,13 @@
                 mobileProjectTools.appendChild(tag);
             });
 
-            // Update image
+            // Update image - clear first to prevent showing previous image while loading
             if (data.images && data.images.length > 0) {
+                mobileProjectImage.style.opacity = '0';
                 mobileProjectImage.src = data.images[0];
+                mobileProjectImage.onload = () => {
+                    mobileProjectImage.style.opacity = '1';
+                };
                 mobileImageSlide.style.display = 'flex';
             } else {
                 mobileImageSlide.style.display = 'none';
